@@ -771,7 +771,48 @@ questions.forEach(q => { state[q.num] = { chosen: null, revealed: false }; });
 
 let activeFilter = 'all';
 
-function getTaskName(q) { return q.task || null; }
+const taskMap = {
+  'Additional: Logistic Regression': 'Binary Outcomes & Logistic Regression',
+  'Additional: Logistic Regression with Categorical Covariates': 'Covariate Encoding & Categorical Covariates',
+  'Gemini Revision – Basic Concepts & Components': 'Fundamental Concepts',
+  'Gemini Revision – Covariate Encoding': 'Covariate Encoding & Categorical Covariates',
+  'Gemini Revision – Binary Outcomes & Latent Motivation': 'Binary Outcomes & Logistic Regression',
+  'Gemini Revision – Logistic Regression Properties': 'Binary Outcomes & Logistic Regression',
+  'Gemini Revision – Categorical Covariates & Estimation': 'Covariate Encoding & Categorical Covariates',
+  'Gemini Revision – GLM Rationale & Exponential Family': 'GLM Rationale & Distributions',
+  'Gemini Revision – GLM Distributions': 'GLM Rationale & Distributions',
+  'Gemini Revision – Advanced Exponential Family Structures': 'GLM Rationale & Distributions',
+  'Gemini Revision – Advanced Continuous GLM Distributions': 'GLM Rationale & Distributions',
+  'Gemini Revision – Advanced Discrete GLM Distributions': 'GLM Rationale & Distributions',
+  'Gemini Revision – Grouped Data': 'Grouped Data',
+  'Gemini Revision – Advanced Grouped Data': 'Grouped Data',
+  'Gemini Revision – Chain Rule & Score Equations': 'Score & Estimation',
+  'Gemini Revision – Advanced Chain Rule Components': 'Score & Estimation',
+  'Gemini Revision – Canonical vs. Non-Canonical Score': 'Score & Estimation',
+  'Gemini Revision – Fisher Information & Asymptotics': 'Fisher Information & Inference',
+  'Gemini Revision – Information Matrices & Curvature': 'Fisher Information & Inference',
+  'Gemini Revision – Newton-Raphson & IRLS': 'Optimization & IRLS',
+  'Gemini Revision – Advanced Algorithmic Mechanics': 'Optimization & IRLS',
+  'Gemini Revision – Structural Summaries & GLM Framework': 'GLM Framework',
+  'Gemini Revision – Core Model Comparisons & Overarching Concepts': 'Model Comparison',
+};
+
+const majorTopics = [
+  'Fundamental Concepts',
+  'Covariate Encoding & Categorical Covariates',
+  'Binary Outcomes & Logistic Regression',
+  'GLM Rationale & Distributions',
+  'Grouped Data',
+  'Score & Estimation',
+  'Fisher Information & Inference',
+  'Optimization & IRLS',
+  'GLM Framework',
+  'Model Comparison',
+];
+
+function getTaskName(q) {
+  return q.task ? (taskMap[q.task] || q.task) : null;
+}
 
 function buildUI() {
   const main = document.getElementById('main');
@@ -779,9 +820,14 @@ function buildUI() {
   const filterBar = document.getElementById('filterBar');
   filterBar.innerHTML = '';
 
-  // collect task labels
+  // collect major topics
   const tasks = [];
-  questions.forEach(q => { if (q.task && !tasks.includes(q.task)) tasks.push(q.task); });
+  questions.forEach(q => {
+    const major = getTaskName(q);
+    if (major && !tasks.includes(major)) tasks.push(major);
+  });
+
+  const orderedTasks = majorTopics.filter(t => tasks.includes(t));
 
   // filter buttons
   const allBtn = document.createElement('button');
@@ -790,10 +836,10 @@ function buildUI() {
   allBtn.onclick = () => { activeFilter = 'all'; buildUI(); };
   filterBar.appendChild(allBtn);
 
-  tasks.forEach(t => {
+  orderedTasks.forEach(t => {
     const btn = document.createElement('button');
     btn.className = 'filter-btn' + (activeFilter === t ? ' active' : '');
-    btn.textContent = t.replace('Task ','T').replace('Additional:','Add:').replace('Basic Concepts of Regression','Basic Concepts').replace('Logistic Regression with Categorical Covariates','Categorical');
+    btn.textContent = t;
     btn.onclick = () => { activeFilter = t; buildUI(); };
     filterBar.appendChild(btn);
   });
@@ -801,20 +847,22 @@ function buildUI() {
   // render questions
   let lastTask = null;
   questions.forEach(q => {
-    const taskMatch = activeFilter === 'all' || q.task === activeFilter ||
-      (activeFilter !== 'all' && !q.task && questions.find(x => x.task && x.num < q.num && (activeFilter === 'all' || x.task === activeFilter)));
+    const currentTask = getTaskName(q);
+    const taskMatch = activeFilter === 'all' || currentTask === activeFilter ||
+      (activeFilter !== 'all' && !currentTask && questions.find(x => getTaskName(x) && x.num < q.num && getTaskName(x) === activeFilter));
 
     // determine current task for this question
-    let thisTask = q.task || lastTask;
-    if (q.task) lastTask = q.task;
+    let thisTask = currentTask || lastTask;
+    const prevTask = lastTask;
+    if (currentTask) lastTask = currentTask;
 
     if (activeFilter !== 'all' && thisTask !== activeFilter) return;
 
     // section heading
-    if (q.task) {
+    if (currentTask && (!prevTask || currentTask !== prevTask)) {
       const h = document.createElement('div');
       h.className = 'section-heading';
-      h.textContent = q.task;
+      h.textContent = currentTask;
       main.appendChild(h);
     }
 
