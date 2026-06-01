@@ -32,44 +32,47 @@
   header {
     background: linear-gradient(135deg, #131828 0%, #1a2240 100%);
     border-bottom: 1px solid var(--border);
-    padding: 28px 32px 22px;
+    padding: 8px 10px 6px;
     position: sticky; top: 0; z-index: 100;
     backdrop-filter: blur(10px);
+    max-height: 10vh;
+    min-height: 0;
+    overflow: hidden;
   }
   header h1 {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 1.15rem;
-    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
     color: var(--accent);
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 4px;
   }
   .scorebar {
-    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   }
   .stat {
     display: flex; flex-direction: column; align-items: center;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 6px 16px;
-    min-width: 70px;
+    padding: 4px 10px;
+    min-width: 50px;
   }
-  .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 1.3rem; font-weight: 600; }
-  .stat-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 1px; }
+  .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; }
+  .stat-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 1px; }
   .stat.answered .stat-val { color: var(--accent); }
   .stat.correct .stat-val { color: var(--true-col); }
   .stat.wrong .stat-val { color: var(--false-col); }
   .stat.score-val .stat-val { color: #f0c94a; }
 
-  .header-btns { display: flex; gap: 10px; margin-left: auto; flex-wrap: wrap; align-items: center; }
+  .header-btns { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; align-items: center; }
   .btn {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 7px 16px;
-    border-radius: 6px;
+    padding: 5px 10px;
+    border-radius: 5px;
     border: 1px solid var(--border);
     cursor: pointer;
     background: var(--surface);
@@ -164,20 +167,22 @@
 
   /* ── ANSWER BUTTONS ── */
   .answer-row {
-    display: flex; gap: 10px;
-    padding: 0 18px 16px;
+    display: flex; gap: 6px;
+    padding: 0 14px 12px;
+    flex-wrap: nowrap;
   }
   .ans-btn {
     flex: 1;
-    padding: 9px 0;
-    border-radius: 8px;
+    min-width: 0;
+    padding: 7px 0;
+    border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--muted);
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     cursor: pointer;
     transition: all 0.15s;
   }
@@ -313,10 +318,17 @@
   .unanswered-note { color: var(--muted); font-size: 0.78rem; margin-top: 8px; }
 
   @media (max-width: 600px) {
-    header { padding: 18px 16px 14px; }
-    main { padding: 20px 12px; }
-    .filter-bar { padding: 10px 14px; }
-    .scorebar { gap: 10px; }
+    header { padding: 8px 8px 6px; max-height: 10vh; }
+    header h1 { font-size: 0.82rem; margin-bottom: 3px; }
+    .scorebar { gap: 6px; }
+    .stat { padding: 3px 8px; min-width: 45px; }
+    .stat-val { font-size: 0.95rem; }
+    .stat-lbl { font-size: 0.55rem; }
+    .btn { padding: 4px 8px; font-size: 0.62rem; }
+    main { padding: 16px 8px; }
+    .filter-bar { padding: 8px 10px; }
+    .answer-row { gap: 5px; padding: 0 10px 10px; }
+    .ans-btn { font-size: 0.72rem; padding: 6px 0; }
   }
 </style>
 </head>
