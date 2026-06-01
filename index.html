@@ -136,10 +136,8 @@
     overflow: hidden;
     transition: border-color 0.2s;
   }
-  .card.answered-true  { border-color: var(--true-col); }
-  .card.answered-false { border-color: var(--false-col); }
-  .card.revealed.correct-answer { border-left: 4px solid var(--true-col); }
-  .card.revealed.wrong-answer   { border-left: 4px solid var(--false-col); }
+  .card.correct-answer { border-color: var(--true-col); border-width: 2px; }
+  .card.wrong-answer   { border-color: var(--false-col); border-width: 2px; }
 
   .card-top {
     display: flex; align-items: flex-start; gap: 14px;
@@ -880,9 +878,11 @@ function buildUI() {
 
     const s = state[q.num];
     let cardClass = 'card';
+    if (s.chosen) {
+      cardClass += s.chosen === q.answer ? ' correct-answer' : ' wrong-answer';
+    }
     if (s.revealed) {
-      const correct = s.chosen === q.answer;
-      cardClass += s.chosen ? (correct ? ' revealed correct-answer' : ' revealed wrong-answer') : ' revealed';
+      cardClass += ' revealed';
     }
 
     const card = document.createElement('div');
@@ -915,6 +915,7 @@ function buildUI() {
 
 function choose(num, val) {
   state[num].chosen = val;
+  state[num].revealed = true;
   buildUI();
 }
 
