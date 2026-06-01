@@ -780,6 +780,7 @@ const state = {}; // num -> { chosen: 'TRUE'|'FALSE', revealed: bool }
 questions.forEach(q => { state[q.num] = { chosen: null, revealed: false }; });
 
 let activeFilter = 'all';
+let shuffledOrder = null;
 
 const taskMap = {
   'Additional: Logistic Regression': 'Binary Outcomes & Logistic Regression',
@@ -846,6 +847,16 @@ function buildUI() {
   allBtn.onclick = () => { activeFilter = 'all'; buildUI(); };
   filterBar.appendChild(allBtn);
 
+  const shuffleBtn = document.createElement('button');
+  shuffleBtn.className = 'filter-btn' + (activeFilter === 'shuffle' ? ' active' : '');
+  shuffleBtn.textContent = 'Shuffle';
+  shuffleBtn.onclick = () => {
+    activeFilter = 'shuffle';
+    shuffledOrder = [...questions].sort(() => Math.random() - 0.5);
+    buildUI();
+  };
+  filterBar.appendChild(shuffleBtn);
+
   orderedTasks.forEach(t => {
     const btn = document.createElement('button');
     btn.className = 'filter-btn' + (activeFilter === t ? ' active' : '');
@@ -856,24 +867,25 @@ function buildUI() {
 
   // render questions
   let lastTask = null;
-  questions.forEach(q => {
+  const displayList = activeFilter === 'shuffle' ? shuffledOrder : questions;
+  displayList.forEach((q, idx) => {
     const currentTask = getTaskName(q);
-    const taskMatch = activeFilter === 'all' || currentTask === activeFilter ||
-      (activeFilter !== 'all' && !currentTask && questions.find(x => getTaskName(x) && x.num < q.num && getTaskName(x) === activeFilter));
 
-    // determine current task for this question
-    let thisTask = currentTask || lastTask;
-    const prevTask = lastTask;
-    if (currentTask) lastTask = currentTask;
+    if (activeFilter !== 'shuffle') {
+      // determine current task for this question
+      let thisTask = currentTask || lastTask;
+      const prevTask = lastTask;
+      if (currentTask) lastTask = currentTask;
 
-    if (activeFilter !== 'all' && thisTask !== activeFilter) return;
+      if (activeFilter !== 'all' && thisTask !== activeFilter) return;
 
-    // section heading
-    if (currentTask && (!prevTask || currentTask !== prevTask)) {
-      const h = document.createElement('div');
-      h.className = 'section-heading';
-      h.textContent = currentTask;
-      main.appendChild(h);
+      // section heading
+      if (currentTask && (!prevTask || currentTask !== prevTask)) {
+        const h = document.createElement('div');
+        h.className = 'section-heading';
+        h.textContent = currentTask;
+        main.appendChild(h);
+      }
     }
 
     const s = state[q.num];
@@ -892,7 +904,7 @@ function buildUI() {
     // top: number + statement
     card.innerHTML = `
       <div class="card-top">
-        <span class="q-num">Q${q.num}</span>
+        <span class="q-num">Q${activeFilter === 'shuffle' ? idx + 1 : q.num}</span>
         <span class="statement">${q.statement}</span>
       </div>
       <div class="answer-row">
