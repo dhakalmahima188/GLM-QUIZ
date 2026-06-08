@@ -3,127 +3,822 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASL Quiz Hub</title>
+<title>ASL Complete Quiz — All Chapters</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    color-scheme: light;
-    font-family: Inter, system-ui, sans-serif;
-    background: #f4f6fb;
-    color: #111827;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: #eef2ff; }
-  header { background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%); border-bottom: 1px solid #c7d2fe; padding: 28px 24px; }
-  .hero { max-width: 1024px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
-  h1 { margin: 0; font-size: clamp(1.9rem, 2.5vw, 2.7rem); letter-spacing: -0.04em; color: #111827; }
-  p.lead { margin: 0; max-width: 770px; line-height: 1.7; font-size: 1rem; color: #475569; }
-  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
-  button, select { font: inherit; border-radius: 999px; border: 1px solid transparent; padding: 12px 18px; cursor: pointer; transition: all 0.15s ease; }
-  button { background: #4338ca; color: white; border-color: #4338ca; }
-  button:hover { background: #312e81; }
-  select { background: white; color: #111827; border-color: #c7d2fe; box-shadow: 0 10px 30px rgba(15,23,42,.08); }
-  .note { font-size: 0.92rem; color: #475569; }
-  main { max-width: 1100px; margin: 28px auto 32px; padding: 0 20px; }
-  .panel { display: grid; gap: 20px; }
-  .quiz-list { display: grid; gap: 14px; }
-  .quiz-card { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 22px; background: white; border-radius: 16px; border: 1px solid #dbeafe; box-shadow: 0 10px 25px rgba(15,23,42,0.06); }
-  .quiz-card strong { display: block; font-size: 1rem; color: #111827; }
-  .quiz-card span { display: block; color: #4b5563; font-size: 0.94rem; }
-  .quiz-card button { min-width: 118px; }
-  .viewer { position: relative; min-height: 720px; border-radius: 18px; overflow: hidden; border: 1px solid #c7d2fe; background: white; }
-  .viewer::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top left, rgba(99,102,241,.12), transparent 28%), radial-gradient(circle at bottom right, rgba(59,130,246,.12), transparent 20%); pointer-events: none; }
-  iframe { width: 100%; height: 800px; border: 0; display: block; background: white; }
-  .footer { max-width: 1024px; margin: 0 auto; padding: 0 20px; font-size: 0.92rem; color: #6b7280; line-height: 1.7; }
-  .footer a { color: #4338ca; text-decoration: none; }
-  .footer a:hover { text-decoration: underline; }
-  @media (max-width: 720px) {
-    .quiz-card { flex-direction: column; align-items: flex-start; }
-    .viewer { min-height: 520px; }
-    iframe { height: 580px; }
-  }
+:root {
+  --bg:#f7f5f0;--surface:#fff;--surface2:#f1ede5;--border:#ddd8cc;
+  --text:#1a1814;--muted:#6b6459;--accent:#2d5fa6;--accent-light:#e8f0fb;
+  --green:#1a6e40;--green-light:#e6f5ed;--red:#b71c1c;--red-light:#fdecea;
+  --gold:#9a6e10;--radius:10px;--shadow:0 2px 14px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+
+/* ── HEADER ── */
+header{background:var(--text);color:#fff;padding:24px 36px 20px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.25)}
+.hrow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+header h1{font-family:'Playfair Display',serif;font-size:1.45rem;line-height:1.2}
+header p{font-size:.78rem;color:#aaa;margin-top:3px;font-weight:300}
+.score-badge{background:var(--accent);color:#fff;padding:7px 18px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:.85rem;white-space:nowrap}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:14px 36px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.btn{padding:7px 16px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:'Source Sans 3',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:#1e4a8a}
+.btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn.danger:hover{background:#8b0000}
+.progress-wrap{flex:1;min-width:160px;height:5px;background:var(--border);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .4s}
+.prog-label{font-size:.77rem;color:var(--muted);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+
+/* ── CHAPTER FILTER PILLS ── */
+.filter-bar{padding:10px 36px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.filter-label{font-size:.72rem;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-right:4px}
+.pill{padding:5px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:.76rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:'JetBrains Mono',monospace}
+.pill:hover{border-color:var(--accent);color:var(--accent)}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── STATS BAR ── */
+.stats-bar{display:flex;gap:24px;padding:12px 36px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700}
+.stat-val.g{color:var(--green)}.stat-val.r{color:var(--red)}.stat-val.b{color:var(--accent)}
+.stat-label{font-size:.71rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+/* ── CARDS ── */
+main{max-width:820px;margin:0 auto;padding:28px 20px;display:flex;flex-direction:column;gap:16px}
+.q-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s}
+.q-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.11)}
+.q-head{display:flex;align-items:flex-start;gap:12px;padding:18px 20px 14px;border-bottom:1px solid var(--border)}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.q-text{font-size:.96rem;line-height:1.6;flex:1}
+.q-btns{display:flex;gap:9px;padding:12px 20px 14px}
+.opt{flex:1;padding:9px 14px;border-radius:7px;border:2px solid var(--border);background:var(--surface);font-family:'Source Sans 3',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.opt.t{color:var(--green)}.opt.f{color:var(--red)}
+.opt:hover:not(:disabled){border-color:currentColor;transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.09)}
+.opt:disabled{cursor:default;transform:none}
+.opt.sel-t{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.opt.sel-f{background:var(--red-light);border-color:var(--red);color:var(--red)}
+.opt.ok{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.opt.bad{background:var(--red-light);border-color:var(--red);color:var(--red);opacity:.55}
+.opt.show-ok{background:var(--green-light);border-color:var(--green);color:var(--green)}
+
+.exp{display:none;padding:12px 20px 16px;border-top:1.5px solid var(--border);animation:sd .22s ease}
+@keyframes sd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.exp.vis{display:block}
+.exp-inner{border-radius:7px;padding:12px 14px;font-size:.88rem;line-height:1.65}
+.exp-inner.ok{background:var(--green-light);border-left:4px solid var(--green)}
+.exp-inner.bad{background:var(--red-light);border-left:4px solid var(--red)}
+.verdict{font-weight:700;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.exp-inner.ok .verdict{color:var(--green)}.exp-inner.bad .verdict{color:var(--red)}
+.slide-tag{display:inline-block;margin-top:7px;font-family:'JetBrains Mono',monospace;font-size:.72rem;background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 7px;color:var(--muted)}
+
+/* ── RESULT PANEL ── */
+#result-panel{display:none;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;box-shadow:var(--shadow)}
+#result-panel.vis{display:block}
+#result-panel h2{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px}
+.big-score{font-family:'JetBrains Mono',monospace;font-size:3rem;font-weight:700;color:var(--accent);margin:8px 0}
+.breakdown{display:flex;justify-content:center;gap:28px;margin:16px 0 24px;font-size:.88rem;color:var(--muted)}
+.breakdown span{display:flex;flex-direction:column;align-items:center;gap:3px}
+.breakdown strong{font-size:1.35rem;font-weight:700}
+
+/* ── EMPTY MSG ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:.95rem}
+
+@media(max-width:600px){
+  header,.toolbar,.filter-bar,.stats-bar{padding-left:14px;padding-right:14px}
+  main{padding:16px 10px}
+  .q-btns{flex-direction:column}
+}
 </style>
 </head>
 <body>
+
 <header>
-  <div class="hero">
+  <div class="hrow">
     <div>
-      <h1>ASL Quiz Hub</h1>
-      <p class="lead">One page to access every quiz in this folder. Choose a quiz below to open it inside the main interface, or use the dropdown to jump directly to any quiz.</p>
+      <h1>Advanced Statistical Learning — Complete Quiz</h1>
+      <p>All Chapters · 545 True / False Questions</p>
     </div>
-    <div class="controls">
-      <select id="quizSelect" aria-label="Select quiz"></select>
-      <button type="button" id="openBtn">Open quiz</button>
-      <button type="button" id="newTabBtn">Open in new tab</button>
-    </div>
-    <div class="note">The quiz content is loaded from the original HTML files in the folder, but you can access them from one single entry point.</div>
+    <div class="score-badge" id="scoreBadge">Score: 0</div>
   </div>
 </header>
-<main>
-  <div class="panel">
-    <div class="quiz-list" id="quizList"></div>
-    <div class="viewer">
-      <iframe id="quizFrame" title="ASL Quiz Viewer" src="1supervised.html"></iframe>
-    </div>
-  </div>
-</main>
-<div class="footer">
-  <p>Available quizzes: <strong>1supervised, 2_classification, 2univariate, asl_quiz, risk_minimization_quiz, risk_minimization_2, univariate</strong>.</p>
-  <p>If you want, I can also merge them into a single uniform quiz UI inside this page instead of using embedded files.</p>
+
+<div class="toolbar">
+  <button class="btn primary" onclick="doShuffle()">⇄ Shuffle</button>
+  <button class="btn" onclick="doReset()">↺ Reset</button>
+  <button class="btn danger" onclick="showResults()">✓ Results</button>
+  <div class="progress-wrap"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  <span class="prog-label" id="progLabel">0 / 0</span>
 </div>
+
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="pill active" data-ch="all" onclick="setFilter('all')">All</button>
+  <button class="pill" data-ch="1" onclick="setFilter('1')">Ch 1 · Intro</button>
+  <button class="pill" data-ch="2" onclick="setFilter('2')">Ch 2 · Classification</button>
+  <button class="pill" data-ch="3" onclick="setFilter('3')">Ch 3 · Capacity</button>
+  <button class="pill" data-ch="4" onclick="setFilter('4')">Ch 4 · Risk Min.</button>
+  <button class="pill" data-ch="5L" onclick="setFilter('5L')">Ch 5 · Linear Models</button>
+  <button class="pill" data-ch="5B" onclick="setFilter('5B')">Ch 5 · B-Splines</button>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><span class="stat-val g" id="sCorr">0</span><span class="stat-label">Correct</span></div>
+  <div class="stat"><span class="stat-val r" id="sWrong">0</span><span class="stat-label">Incorrect</span></div>
+  <div class="stat"><span class="stat-val b" id="sLeft">0</span><span class="stat-label">Remaining</span></div>
+  <div class="stat" style="margin-left:auto"><span class="stat-val" id="sPct" style="color:var(--muted)">—</span><span class="stat-label">Accuracy</span></div>
+</div>
+
+<main id="qContainer"></main>
+
+<div id="result-panel">
+  <h2>Quiz Complete</h2>
+  <div class="big-score" id="finalScore">—</div>
+  <div class="breakdown">
+    <span><strong class="g" id="rCorr">0</strong>Correct</span>
+    <span><strong class="r" id="rWrong">0</strong>Incorrect</span>
+    <span><strong class="b" id="rSkip">0</strong>Skipped</span>
+  </div>
+  <button class="btn primary" onclick="doReset()">Start Over</button>
+</div>
+
 <script>
-const quizzes = [
-  { id: '1supervised', label: 'Chapter 3 – Hypothesis Spaces & Capacity', file: '1supervised.html' },
-  { id: '2_classification', label: 'Chapter 2 – Classification Quiz', file: '2_classification.html' },
-  { id: '2univariate', label: 'Chapter 5 – Univariate & Linear Modelling (v2)', file: '2univariate.html' },
-  { id: 'asl_quiz', label: 'ASL Chapter 3 – Hypothesis Spaces & Capacity (light)', file: 'asl_quiz.html' },
-  { id: 'risk_minimization_quiz', label: 'Risk Minimization Quiz', file: 'risk_minimization_quiz.html' },
-  { id: 'risk_minimization_2', label: 'Risk Minimization Quiz (Alternate)', file: 'risk_minimization_2.html' },
-  { id: 'univariate', label: 'Chapter 5 – Univariate & Linear Modelling', file: 'univariate.html' }
+/* ═══════════════════════════════════════════════════════
+   ALL QUESTIONS  — ch: "1"|"2"|"3"|"4"|"5L"|"5B"
+   ═══════════════════════════════════════════════════════ */
+const ALL_Q = [
+
+/* ──────────────────────── CHAPTER 1 ──────────────────────── */
+{ch:"1",t:"Machine Learning is a subset of Artificial Intelligence.",a:true,e:"The diagram shows ML sitting inside the larger field of AI, with Deep Learning as a further subset of ML.",s:"Slide 2"},
+{ch:"1",t:"Deep Learning is a superset of Machine Learning.",a:false,e:"Deep Learning is a specialisation (subset) of Machine Learning, not a superset.",s:"Slide 2"},
+{ch:"1",t:"According to Tom Mitchell's definition, a program is said to learn if its performance on a task T improves with experience E as measured by performance measure P.",a:true,e:"This is the exact definition given by Mitchell (1998): learn from experience E w.r.t. task T and performance measure P.",s:"Slide 2"},
+{ch:"1",t:"A machine learning program can improve its performance on a task without any form of experience or data.",a:false,e:"Mitchell's definition explicitly requires experience E to drive improvement. Without data/experience there is nothing to learn from.",s:"Slide 2"},
+{ch:"1",t:"In supervised learning the dataset D consists of input–output pairs (x⁽ⁱ⁾, y⁽ⁱ⁾).",a:true,e:"D = {(x⁽¹⁾,y⁽¹⁾), …, (x⁽ⁿ⁾,y⁽ⁿ⁾)} ⊂ (X × Y)ⁿ is the standard definition of supervised training data.",s:"Slide 4"},
+{ch:"1",t:"The input space X is always one-dimensional (p = 1).",a:false,e:"X ⊂ ℝᵖ where p = dim(X) can be any positive integer. Multiple features are the norm in practice.",s:"Slide 4"},
+{ch:"1",t:"The j-th feature vector x_j collects the j-th feature value across all n observations.",a:true,e:"x_j = (x_j⁽¹⁾, …, x_j⁽ⁿ⁾) is the j-th feature vector spanning all training examples.",s:"Slide 4"},
+{ch:"1",t:"We assume that data is drawn i.i.d. from the joint distribution p(x, y).",a:true,e:"The standard assumption is that observations are drawn independently and identically distributed (i.i.d.) from the joint pdf/pmf p(x, y).",s:"Slide 5"},
+{ch:"1",t:"The probability distribution P_xy that generates the data is typically known in advance.",a:false,e:"P_xy is assumed to exist but is typically unknown and very complicated – otherwise we would not need to learn from data.",s:"Slide 5"},
+{ch:"1",t:"When distributions are parameterised by θ ∈ Θ, writing p(x, y | θ) implies a Bayesian treatment in this lecture.",a:false,e:"The lecture is developed from a frequentist perspective; p(x,y|θ) is shorthand for p_θ(x,y) and does not imply Bayesian conditioning on θ.",s:"Slide 6"},
+{ch:"1",t:"In regression, the output space Y is a subset of real numbers ℝᵍ.",a:true,e:"Regression is defined as predicting a continuous output from Y ⊂ ℝᵍ, with g = 1 for univariate regression.",s:"Slide 7"},
+{ch:"1",t:"Multi-Target Regression refers to the case g = 1.",a:false,e:"Multi-Target Regression corresponds to g > 1 (multiple continuous outputs). The lecture focuses on g = 1 (univariate response).",s:"Slide 7"},
+{ch:"1",t:"Binary classification is a special case of classification with exactly g = 2 classes.",a:true,e:"When g = 2 the task is binary classification; g > 2 gives multiclass classification.",s:"Slide 7"},
+{ch:"1",t:"Density estimation predicts a single class label for each input x.",a:false,e:"Density estimation predicts the full conditional probability distribution p(y|x) over Y, not just a single label.",s:"Slide 7"},
+{ch:"1",t:"Classification requires the output space Y to be a finite set of class labels.",a:true,e:"Classification is defined as assigning an input to one class from a finite set Y = {C₁, …, Cg} with g ≥ 2.",s:"Slide 7"},
+{ch:"1",t:"The residual r⁽ⁱ⁾ = y⁽ⁱ⁾ − f(x⁽ⁱ⁾) represents the difference between the true output and the model prediction in regression.",a:true,e:"The residual is explicitly defined as r = y − f(x), measuring the gap between true response and predicted score.",s:"Slide 8"},
+{ch:"1",t:"In a spam classification task, each email can be represented as a term-frequency vector x⁽ⁱ⁾ ∈ ℝᵖ.",a:true,e:"The slide gives spam detection as a classification example where each email is encoded as a term-frequency vector of dimension p.",s:"Slide 11"},
+{ch:"1",t:"Predicting hospital length-of-stay is an example of a classification task.",a:false,e:"Predicting number of days (a continuous metric output) is a regression task, not classification.",s:"Slide 9"},
+{ch:"1",t:"A model f is formally defined as a function f : X → ℝᵍ.",a:true,e:"The lecture defines a model as a function mapping inputs x ∈ X to g real-valued scores.",s:"Slide 14"},
+{ch:"1",t:"The hypothesis space H contains only the single best model for a task.",a:false,e:"H is the full set of allowed (candidate) models from which the inducer selects. It generally contains infinitely many models.",s:"Slide 14"},
+{ch:"1",t:"In regression, the score f(x) is used directly as the prediction ŷ.",a:true,e:"For regression, scores are taken as predictions directly without further transformation.",s:"Slide 14"},
+{ch:"1",t:"In classification, scores f(x) can be transformed into class probabilities.",a:true,e:"Scores are transformed to class probabilities or labels (e.g. via sigmoid for binary, softmax for multiclass).",s:"Slide 14"},
+{ch:"1",t:"ŷ := f(x) is called the model prediction for input x.",a:true,e:"The lecture defines ŷ := f(x) as the (model) prediction for a given input x ∈ X.",s:"Slide 14"},
+{ch:"1",t:"Supervised learning can be viewed as a problem of function approximation.",a:true,e:"The slide states: 'supervised learning faces a problem of function approximation – search for f ∈ H such that s(f(x)) ≈ y'.",s:"Slide 15"},
+{ch:"1",t:"An inducing algorithm formally maps a dataset D ∈ (X × Y)ⁿ to a model f ∈ H.",a:true,e:"The formal definition is I_{L,O} : (X × Y)ⁿ → H – the inducer takes data and returns a model.",s:"Slide 15"},
+{ch:"1",t:"An inducing algorithm consists of exactly two components: representation and cost function.",a:false,e:"There are THREE components: Representation (hypothesis space) + Cost function + Optimization.",s:"Slide 18"},
+{ch:"1",t:"The loss function L must be non-negative.",a:true,e:"L : Y × ℝᵖ → ℝ≥0. Non-negativity is part of the formal definition of a loss function.",s:"Slide 15"},
+{ch:"1",t:"The optimizer O in the inducing algorithm is responsible for efficiently searching the hypothesis space for a good model.",a:true,e:"The optimizer is the third component, responsible for searching H. The choice of optimizer is key to the learner's efficiency.",s:"Slide 19"},
+{ch:"1",t:"The representation component of an inducer defines which cost function is used during training.",a:false,e:"The representation defines the hypothesis space (which models are possible), while the cost function is a separate, independent component.",s:"Slide 19"},
+{ch:"1",t:"For linear regression with the squared error loss, the optimal parameters can be found analytically without iterative numerical optimisation.",a:true,e:"The SSE for linear models can be minimised analytically by differentiating w.r.t. θ (normal equations) – no iterative optimisation is needed.",s:"Slide 20"},
+{ch:"1",t:"Decision trees, neural networks, and linear functions are all examples of possible representations (hypothesis spaces).",a:true,e:"The slide lists neighbours, linear functions, decision trees, sets of rules, neural networks, and graphical models as examples of representation choices.",s:"Slide 21"},
+{ch:"1",t:"Gradient descent is an example of an optimizer used in inducing algorithms.",a:true,e:"The slide lists gradient descent (along with quadratic programming, combinatorial optimisation, genetic algorithms) as examples of optimizers.",s:"Slide 21"},
+{ch:"1",t:"The squared error and misclassification rate are examples of cost functions.",a:true,e:"The slide lists squared error, misclassification, likelihood, and information gain as cost function examples.",s:"Slide 21"},
+{ch:"1",t:"The fundamental goal of machine learning is to perform well on the training data.",a:false,e:"The fundamental goal is to generalise beyond training examples. Good training performance alone is insufficient.",s:"Slide 23"},
+{ch:"1",t:"The generalisation error of a fixed model f̂ trained on a fixed dataset D is defined as the expected loss over new observations (x,y) ~ P_xy.",a:true,e:"GE(f̂) = E_{(x,y)~P_xy} [L(y, f̂(x))], with D and f̂ fixed while test observations are random.",s:"Slide 23"},
+{ch:"1",t:"Using the training error as an estimate of generalisation error gives an over-optimistic (biased) estimate.",a:true,e:"Because the model is optimised specifically to minimise training error, testing on training data gives a biased-low estimate of true generalisation performance.",s:"Slide 25"},
+{ch:"1",t:"The generalisation error can be directly computed when P_xy is unknown.",a:false,e:"Since P_xy is typically unknown, the generalisation error cannot be computed directly and must be estimated (e.g. hold-out, cross-validation).",s:"Slide 25"},
+{ch:"1",t:"In the holdout method, the test set D_test is held out from training and used only to evaluate the model.",a:true,e:"The data is split D = D_train ∪ D_test; D_test is never used during training, only for evaluation.",s:"Slide 25"},
+{ch:"1",t:"The test error is typically lower than the training error.",a:false,e:"The test error is typically greater than or equal to the training error, because the model was optimised on the training data.",s:"Slide 26"},
+{ch:"1",t:"If a hypothesis is fixed before seeing the data, the expected training error equals the expected test error.",a:true,e:"Only when the hypothesis is fixed in advance (not learned from data) do the expected training and test errors coincide.",s:"Slide 26"},
+{ch:"1",t:"The inner loss is the loss function minimised during model fitting.",a:true,e:"The inner loss is optimised during training to obtain f̂. The outer loss is used afterwards to assess generalisation performance.",s:"Slide 24"},
+{ch:"1",t:"The inner loss and outer loss must always be the same function.",a:false,e:"They often differ. E.g. logistic regression minimises the binomial loss (inner) but may be evaluated by misclassification rate or AUC (outer).",s:"Slide 24"},
+{ch:"1",t:"The outer loss is also referred to as the performance measure.",a:true,e:"The slide uses 'outer loss' and 'performance measure' interchangeably when defining the generalisation error.",s:"Slide 23"},
+{ch:"1",t:"The terms 'inducer', 'learning algorithm', and 'learner' can be used interchangeably.",a:true,e:"The last slide explicitly lists inducer, inducing algorithm, learning algorithm, and learner as synonymous terms.",s:"Slide 29"},
+{ch:"1",t:"The terms 'feature', 'covariate', and 'predictor' refer to different quantities in this lecture.",a:false,e:"Feature, attribute, covariate, input variable, and predictor are all used interchangeably throughout the lecture.",s:"Slide 29"},
+{ch:"1",t:"'Cost function', 'costs', and 'risk' all refer to the same concept in this lecture.",a:true,e:"The synonyms slide lists cost function, costs, and risk as interchangeable terms for the same concept.",s:"Slide 29"},
+{ch:"1",t:"'Training' and 'fitting' are synonyms for the execution of the inducing algorithm.",a:true,e:"The lecture defines: 'The execution of the inducing algorithm I is called training or fitting.'",s:"Slide 15"},
+
+/* ──────────────────────── CHAPTER 2 ──────────────────────── */
+{ch:"2",t:"In classification, the goal is to predict a discrete output y from a finite set of class labels.",a:true,e:"Classification aims at predicting a discrete output y ∈ Y = {C₁, …, Cg} with 2 ≤ g < ∞.",s:"Slide 2"},
+{ch:"2",t:"In binary classification (g = 2), one valid encoding of the class labels is Y = {0, 1}.",a:true,e:"The slide explicitly states Y = {0,1} or Y = {−1,1} are used for the binary case g = 2.",s:"Slide 2"},
+{ch:"2",t:"In binary classification (g = 2), Y = {−1, 1} is an invalid encoding of class labels.",a:false,e:"Both Y = {0,1} and Y = {−1,1} are valid encodings for binary classification.",s:"Slide 2"},
+{ch:"2",t:"The multiclass case uses the encoding Y = {1, 2, …, g} for g ≥ 3.",a:true,e:"The slide defines Y = {1, 2, …, g} for the multiclass case with g ≥ 3.",s:"Slide 2"},
+{ch:"2",t:"A classification task with g = 1 class is well-defined.",a:false,e:"Classification requires at least 2 classes: 2 ≤ g < ∞. g = 1 is meaningless as there is nothing to classify.",s:"Slide 2"},
+{ch:"2",t:"Classification models f : X → ℝᵍ output continuous scores or probabilities rather than discrete class labels directly.",a:true,e:"Models are defined as f : X → ℝᵍ, outputting continuous scores/probabilities, not discrete classes. This is easier to optimise.",s:"Slide 3"},
+{ch:"2",t:"It is easier from an optimisation perspective to work directly with discrete class labels than with continuous scores.",a:false,e:"The slide explicitly states it is much easier to optimise costs for continuous-valued functions than for discrete outputs.",s:"Slide 3"},
+{ch:"2",t:"Scores and probabilities contain more information than class labels alone.",a:true,e:"Scores/probabilities encode confidence and ranking information beyond just which class is predicted.",s:"Slide 3"},
+{ch:"2",t:"Class labels can be transformed back into scores without loss of information.",a:false,e:"Scores can easily be transformed into class labels, but class labels cannot be transformed back into scores – information is lost.",s:"Slide 3"},
+{ch:"2",t:"The two main types of classifiers covered are scoring classifiers and probabilistic classifiers.",a:true,e:"The slide states: 'We distinguish scoring and probabilistic classifiers.'",s:"Slide 3"},
+{ch:"2",t:"A scoring classifier constructs g discriminant/scoring functions f₁, …, fg : X → ℝ.",a:true,e:"Scoring classifiers construct g scoring functions, one per class, mapping inputs to real-valued scores.",s:"Slide 4"},
+{ch:"2",t:"In a scoring classifier, the predicted class is h(x) = argmax_k f_k(x).",a:true,e:"The class with the maximum score is selected: h(x) = argmax_{k∈{1,…,g}} f_k(x).",s:"Slide 4"},
+{ch:"2",t:"In a scoring classifier, the predicted class is the one with the minimum score.",a:false,e:"The predicted class is the one with the maximum score, not the minimum.",s:"Slide 4"},
+{ch:"2",t:"For binary classification (g = 2) with classes {+1, −1}, a single discriminant function f(x) = f₁(x) − f₋₁(x) is sufficient.",a:true,e:"For g = 2, one function suffices: h(x) = 1 ⟺ f₁(x) > f₋₁(x) ⟺ f(x) = f₁(x) − f₋₁(x) > 0.",s:"Slide 4"},
+{ch:"2",t:"In binary classification, h(x) = 1 if and only if f(x) > 0 (where f(x) = f₁(x) − f₋₁(x)).",a:true,e:"The equivalence chain on the slide shows: h(x) = 1 ⟺ f₁(x) > f₋₁(x) ⟺ f(x) > 0.",s:"Slide 4"},
+{ch:"2",t:"For a binary scoring classifier, class labels are constructed by h(x) = sgn(f(x)).",a:true,e:"The slide states: 'Class labels are constructed by h(x) = sgn(f(x))'.",s:"Slide 5"},
+{ch:"2",t:"The confidence of a scoring classifier is defined as f(x), i.e. the raw score.",a:false,e:"The confidence is |f(x)|, the absolute value of the score, not f(x) itself.",s:"Slide 5"},
+{ch:"2",t:"|f(x)| is called the confidence of a scoring classifier.",a:true,e:"The slide explicitly defines: '|f(x)| is called confidence'.",s:"Slide 5"},
+{ch:"2",t:"A probabilistic classifier constructs g probability functions π₁, …, πg : X → [0, 1] with Σᵢ πᵢ = 1.",a:true,e:"Probabilistic classifiers output probabilities that are non-negative and sum to 1 across all g classes.",s:"Slide 6"},
+{ch:"2",t:"In a probabilistic classifier, the predicted class is h(x) = argmax_k π_k(x).",a:true,e:"Probabilities are converted to labels by selecting the class with the highest probability.",s:"Slide 6"},
+{ch:"2",t:"For binary classification (g = 2), the standard threshold for converting probabilities to class labels is c = 0.5.",a:true,e:"h(x) := 1(π(x) ≥ c) with c = 0.5 as the usual default for binary classification.",s:"Slide 6"},
+{ch:"2",t:"For binary classification, the threshold c used to convert probabilities to labels must always equal 0.5.",a:false,e:"c = 0.5 is the usual default, but any c ∈ [0,1] can be chosen depending on the application (e.g. cost-sensitive classification).",s:"Slide 6"},
+{ch:"2",t:"Probabilistic classifiers can also be viewed as scoring classifiers.",a:true,e:"The slide states: 'Probabilistic classifiers can also be seen as scoring classifiers' – probabilities are a special kind of score.",s:"Slide 6"},
+{ch:"2",t:"Discrete class labels produced by a classifier can always be transformed back into meaningful probabilities.",a:false,e:"Once discrete classes are predicted, the probability information is lost and cannot be recovered from the labels alone.",s:"Slide 8"},
+{ch:"2",t:"Both scoring and probabilistic classifiers can be converted to discrete class predictions via thresholding (binary) or argmax (multiclass).",a:true,e:"The slide confirms: 'Both scoring and probabilistic classifiers can be turned into discrete classes via thresholding / predicting the class with the maximum score'.",s:"Slide 8"},
+{ch:"2",t:"A decision boundary partitions the input space X into g decision regions.",a:true,e:"A decision boundary is defined as a hypersurface partitioning X into g (= number of classes) decision regions Xk = {x ∈ X : h(x) = k}.",s:"Slide 9"},
+{ch:"2",t:"In the multiclass case, a decision boundary is the set of points where two scoring functions are equal and both are at least as large as all other scores.",a:true,e:"Formally: {x ∈ X : ∃ i ≠ j s.t. fᵢ(x) = fⱼ(x) and fᵢ(x), fⱼ(x) ≥ fₖ(x) ∀k ≠ i,j}.",s:"Slide 9"},
+{ch:"2",t:"For a binary probabilistic classifier with threshold c = 0.5, the decision boundary is the set {x ∈ X : π(x) = 0.5}.",a:true,e:"In the binary case, the decision boundary is f(x) = c; for probabilistic classifiers this is π(x) = 0.5.",s:"Slide 9"},
+{ch:"2",t:"For binary scoring classifiers, the typical threshold defining the decision boundary is c = 0.",a:true,e:"The slide states c = 0 is usually used for scoring classifiers and c = 0.5 for probabilistic classifiers.",s:"Slide 9"},
+{ch:"2",t:"All classifiers produce the same shape of decision boundary regardless of the algorithm used.",a:false,e:"Different classifiers produce differently shaped boundaries. The slide shows QDA, decision tree, nonlinear SVM, and Naive Bayes all produce different boundary shapes.",s:"Slide 10"},
+{ch:"2",t:"QDA, decision trees, nonlinear SVMs, and Naive Bayes are examples of classifiers that produce different shapes of decision boundaries.",a:true,e:"The slide illustrates four classifiers (QDA, decision tree, nonlinear SVM, Naive Bayes) producing visibly different decision boundaries on the same Iris dataset.",s:"Slide 10"},
+{ch:"2",t:"A classifier is called linear if its discriminant functions can be written as g(fₖ(x)) = wₖᵀx + bₖ for some monotone transformation g.",a:true,e:"A linear classifier is one where a rank-preserving monotone transformation g of the scoring functions yields linear functions in x.",s:"Slide 11"},
+{ch:"2",t:"For a linear classifier, the decision boundary between two classes i and j is given by a hyperplane wᵢⱼᵀx + bᵢⱼ = 0.",a:true,e:"The tie fᵢ(x) = fⱼ(x) reduces to (wᵢ − wⱼ)ᵀx + (bᵢ − bⱼ) = 0, i.e. wᵢⱼᵀx + bᵢⱼ = 0.",s:"Slide 11"},
+{ch:"2",t:"Linear classifiers can only represent linear decision boundaries in the original input space under all circumstances.",a:false,e:"Linear classifiers can represent non-linear boundaries in the original input space if derived features are used.",s:"Slide 12"},
+{ch:"2",t:"Using polynomial or higher-order interaction features, a linear classifier can produce a non-linear decision boundary in the original input space.",a:true,e:"The slide notes: 'linear classifiers can represent non-linear decision boundaries in the original input space if we use derived features like higher order interactions, polynomial features, basis function expansions, etc.'",s:"Slide 12"},
+{ch:"2",t:"A sigmoid function is a bounded, differentiable, real-valued function s : ℝ → [0,1] with a non-negative derivative everywhere.",a:true,e:"This is the exact definition of a sigmoid function given in the lecture.",s:"Slide 13"},
+{ch:"2",t:"The logistic function s(t) = 1/(1 + e⁻ᵗ) is an example of a sigmoid function.",a:true,e:"The logistic function is the most commonly used sigmoid, mapping any real score to (0,1).",s:"Slide 14"},
+{ch:"2",t:"The hyperbolic tangent tanh(t) is an example of a sigmoid function used for score-to-probability transformation.",a:true,e:"tanh is listed as one of the sigmoid function examples.",s:"Slide 14"},
+{ch:"2",t:"Any cumulative density function (cdf) can be used as a sigmoid function.",a:true,e:"The slide lists any cdf as a valid sigmoid. The normal cdf (probit function) is given as a specific example.",s:"Slide 14"},
+{ch:"2",t:"Sigmoid functions are only used in classification and have no role in deep learning.",a:false,e:"The slide explicitly notes: 'In deep learning sigmoids are used as activation functions.'",s:"Slide 13"},
+{ch:"2",t:"The logistic function satisfies lim_{t→−∞} s(t) = 0 and lim_{t→+∞} s(t) = 1.",a:true,e:"These are stated as properties of the logistic function on slide 15.",s:"Slide 15"},
+{ch:"2",t:"The derivative of the logistic function is ∂s(t)/∂t = s(t)(1 − s(t)).",a:true,e:"This is an explicitly stated property: ∂s(t)/∂t = exp(t)/(1+exp(t))² = s(t)(1−s(t)).",s:"Slide 15"},
+{ch:"2",t:"The logistic function is symmetric about the point (0, 1).",a:false,e:"The logistic function is symmetric about the point (0, 1/2), not (0, 1).",s:"Slide 15"},
+{ch:"2",t:"The logistic function s(t) = 1/(1+e⁻ᵗ) is used in logistic regression to transform scores to probabilities.",a:true,e:"The slide states: 'The logistic function is a popular choice for transforming scores to probabilities (used, for example, in logistic regression).'",s:"Slide 15"},
+{ch:"2",t:"The softmax function maps a g-dimensional score vector to a probability vector where all entries are in [0,1] and sum to 1.",a:true,e:"The softmax squashes z ∈ ℝᵍ to a vector in [0,1]ᵍ with all entries summing to 1: s(z)ₖ = exp(zₖ)/Σⱼexp(zⱼ).",s:"Slide 16"},
+{ch:"2",t:"The softmax function is defined as s(z)ₖ = exp(zₖ) / Σⱼ exp(zⱼ).",a:true,e:"This is the exact definition of the softmax function given in the lecture.",s:"Slide 16"},
+{ch:"2",t:"The softmax function is a generalisation of the logistic function.",a:true,e:"The slide states: 'It is a generalization of the logistic function (check for g = 2).'",s:"Slide 17"},
+{ch:"2",t:"Unlike the argmax operator, the softmax keeps information about all non-maximal scores in a reversible way.",a:true,e:"The slide notes: 'Compared to the argmax operator, the softmax keeps information about the other, non-maximal elements in a reversible way.'",s:"Slide 17"},
+{ch:"2",t:"The softmax function is used for binary classification only and cannot be applied in the multiclass setting.",a:false,e:"The softmax is specifically designed for multiclass settings (g > 2). It reduces to the logistic function for g = 2.",s:"Slide 17"},
+{ch:"2",t:"The generative approach models the class-conditional density P(x | y = k) and uses Bayes' theorem to obtain posterior probabilities.",a:true,e:"Generative approaches use Bayes' theorem: π_k(x) = P(y=k|x) ∝ P(x|y=k)·πₖ, modelling the class-conditional densities.",s:"Slide 19"},
+{ch:"2",t:"Discriminant approaches try to model the discriminant functions directly, often by loss minimisation.",a:true,e:"The slide states: 'Discriminant approaches try to model the discriminant functions directly, often by loss minimization.'",s:"Slide 19"},
+{ch:"2",t:"Linear Discriminant Analysis (LDA) is a generative, linear classifier that assumes each class has a multivariate Gaussian density with equal covariances.",a:true,e:"LDA assumes P(x|y=k) ~ N(μₖ, Σ) with equal covariance Σ across classes, making it generative and linear.",s:"Slide 20"},
+{ch:"2",t:"Quadratic Discriminant Analysis (QDA) assumes equal covariance matrices across all classes.",a:false,e:"QDA assumes class-specific covariances Σₖ (unequal across classes). LDA assumes equal covariances. This difference is what makes QDA non-linear.",s:"Slide 20"},
+{ch:"2",t:"QDA produces non-linear decision boundaries.",a:true,e:"QDA is described as 'generative, non-linear' because the class-specific covariance matrices Σₖ lead to quadratic (non-linear) decision boundaries.",s:"Slide 20"},
+{ch:"2",t:"Naive Bayes assumes that features are conditionally independent given the class label.",a:true,e:"The 'naive' assumption is conditional independence: P(x|y=k) = ∏ⱼ P(xⱼ|y=k).",s:"Slide 21"},
+{ch:"2",t:"Naive Bayes is a discriminative classifier.",a:false,e:"Naive Bayes is a generative classifier – it models the class-conditional densities P(x|y=k) and applies Bayes' theorem.",s:"Slide 21"},
+{ch:"2",t:"Logistic regression is a discriminative classifier.",a:true,e:"The slide lists logistic regression as 'discriminant, (usually) linear' – it models the discriminant functions directly rather than class-conditional densities.",s:"Slide 21"},
+
+/* ──────────────────────── CHAPTER 3 ──────────────────────── */
+{ch:"3",t:"Failure to obtain a sufficiently low training error is known as underfitting.",a:true,e:"Underfitting occurs when the model lacks the capacity to capture the structure in the training data, resulting in a high training error.",s:"Slide 1"},
+{ch:"3",t:"Overfitting is defined as a large difference between training error and test error.",a:true,e:"Overfitting means the model has learned the training data (including its noise) so well that it fails to generalize — the training error is low but the test error is much higher.",s:"Slide 1"},
+{ch:"3",t:"A model with low capacity tends to overfit the training data.",a:false,e:"Low capacity leads to underfitting, not overfitting. A low-capacity model can only learn a few simple hypotheses and cannot capture complex patterns.",s:"Slide 2"},
+{ch:"3",t:"The test error is minimized when the model has the right capacity — neither underfitting nor overfitting.",a:true,e:"As shown in the capacity curve, the test error forms a U-shape. Too little capacity → underfitting; too much capacity → overfitting; optimal capacity → minimum test error.",s:"Slide 2"},
+{ch:"3",t:"A model with a large capacity can only learn a few simple hypotheses.",a:false,e:"It is the opposite: a model with large capacity can learn many, possibly complex hypotheses. A model with low capacity is restricted to a few simple hypotheses.",s:"Slide 2"},
+{ch:"3",t:"In the capacity vs. error plot, the training error monotonically decreases as capacity increases.",a:true,e:"With more capacity, the model can fit the training data better and better. The training error decreases monotonically toward zero.",s:"Slide 1"},
+{ch:"3",t:"Increasing the degree of a polynomial in linear regression increases the capacity of the model.",a:true,e:"A higher-degree polynomial expands the hypothesis space — more complex curves become representable. This increases model capacity.",s:"Slide 8"},
+{ch:"3",t:"As the size of the hypothesis space increases, the tendency to overfit decreases.",a:false,e:"The opposite is true: larger hypothesis spaces give the model more flexibility to fit random noise in the training data, increasing the tendency to overfit.",s:"Slide 8"},
+{ch:"3",t:"In k-nearest neighbours, k=1 leads to overfitting (high capacity), while large k leads to underfitting (low capacity).",a:true,e:"k=1 memorizes every training point (training error = 0), creating a very complex, irregular decision boundary — overfitting. Large k averages over many neighbors, producing a smoother, less flexible boundary — underfitting.",s:"Slide 13"},
+{ch:"3",t:"For k=1 in kNN, the training error is always 0.",a:true,e:"With k=1, each training point's nearest neighbor is itself, so every training point is classified correctly. The training error is 0 by construction.",s:"Slide 14"},
+{ch:"3",t:"The hypothesis space H is the set of all functions that a learner is allowed to consider for a given task.",a:true,e:"By definition, H = {f : X → R^g | f has a specific form}. It defines the representation of the learning algorithm — the space of all candidate models.",s:"Slide 3"},
+{ch:"3",t:"A separating hyperplane classifier outputs h(x|θ₀, θ) = 1(x^T θ − θ₀ > 0), which is a soft probabilistic output.",a:false,e:"The indicator function 1(·) outputs a hard binary label (0 or 1), not a probability. For probabilistic outputs, one would use logistic regression or apply a sigmoid transformation.",s:"Slide 4"},
+{ch:"3",t:"Decision trees partition the feature space into axis-aligned rectangles.",a:true,e:"Decision trees recursively split the feature space using axis-parallel cuts. The prediction in each region Qᵢ is a constant cᵢ.",s:"Slide 5"},
+{ch:"3",t:"Ensemble methods aggregate predictions of several models; examples include random forests, bagging, and tree-based boosting.",a:true,e:"Ensemble methods combine multiple base learners. Examples noted in the slides include random forests, bagging, and tree-based boosting.",s:"Slide 5"},
+{ch:"3",t:"The VC dimension of a hypothesis class H is the largest number of points that can be shattered by H in at least one configuration.",a:true,e:"Shattering means H can produce any binary labeling of the points. The VC dimension is the maximum size of a set that CAN be shattered — it doesn't have to be every configuration of that size, just one.",s:"Slide 15"},
+{ch:"3",t:"If the VC dimension of H is d, then every set of d points can be shattered by H.",a:false,e:"VC dimension d means there EXISTS at least one set of d points that can be shattered — NOT that all sets of size d can be shattered.",s:"Slide 15"},
+{ch:"3",t:"The VC dimension of linear classifiers (separating hyperplanes) in ℝ² is 3.",a:true,e:"VC₂(H) = 3 for non-homogeneous halfspaces in ℝ². They can shatter 3 points in general position but cannot shatter any configuration of 4 points.",s:"Slide 16"},
+{ch:"3",t:"The VC dimension of non-homogeneous halfspaces h(x|θ) = sign(x^T θ + θ₀) in ℝᵖ is p+1.",a:true,e:"Adding the bias term θ₀ increases the VC dimension by 1 compared to homogeneous halfspaces. The proof reduces non-homogeneous halfspaces in ℝᵖ to homogeneous ones in ℝᵖ⁺¹.",s:"Slide 20"},
+{ch:"3",t:"The VC dimension of axis-aligned rectangles in ℝ² is 4.",a:true,e:"Rectangles can shatter 4 points (one at each extreme: leftmost, rightmost, highest, lowest). For any 5 points, the 5th always falls inside the rectangle defined by the other 4 extremal points.",s:"Slide 22"},
+{ch:"3",t:"The VC dimension of k-nearest neighbours with k=1 is infinite.",a:true,e:"1-NN can shatter any set of points: for any labeling, it assigns each training point its own label exactly. There is no upper bound on the number of points it can shatter.",s:"Slide 22"},
+{ch:"3",t:"A single-parameter threshold classifier h(x) = 1(x ≥ θ) has VC dimension 1.",a:true,e:"It can shatter any single point (label it 0 or 1 by moving θ). But for any 2 points, if the smaller is labeled 1, the larger must also be 1.",s:"Slide 27"},
+{ch:"3",t:"A single-parameter sine classifier h(x) = 1[sin(θx) > 0] has VC dimension 1, since it has only one parameter.",a:false,e:"Despite having only ONE parameter θ, the sine classifier has INFINITE VC dimension. By choosing θ large enough, the oscillations can be made fine enough to shatter any finite set of points.",s:"Slide 28"},
+{ch:"3",t:"The VC dimension provides a probabilistic upper bound on the test error given the training error.",a:true,e:"The bound states: P(err_test ≤ err_train + ε) = 1 − δ, where ε depends on the VC dimension d and training set size. Higher VC dimension → looser bound.",s:"Slide 25"},
+{ch:"3",t:"VC bounds are tight and practical for evaluating neural network performance.",a:false,e:"VC bounds are extremely loose and pessimistic. They must hold for any arbitrary distribution P_xy, requiring unrealistically large training sets. In practice, neural networks perform far better than VC bounds suggest.",s:"Slide 29"},
+{ch:"3",t:"The effective capacity of a learning algorithm depends only on the hypothesis space, not on the optimizer used.",a:false,e:"The lecture explicitly states that effective capacity depends in a complicated way on the optimizer as well. Different optimizers may explore the hypothesis space differently.",s:"Slide 29"},
+{ch:"3",t:"The generalization error can be decomposed into three terms: variance of the data (noise), variance of the inducer, and squared bias of the inducer.",a:true,e:"GEn = σ² (irreducible noise) + E[Var(f̂)] (variance) + E[E²(f_true - f̂)] (squared bias). This is the bias-variance decomposition under the L2 loss.",s:"Slide 33"},
+{ch:"3",t:"The noise term σ² in the bias-variance decomposition can be reduced to zero by using a sufficiently complex model.",a:false,e:"σ² is the intrinsic/unavoidable error — the irreducible noise in the data. No matter which learner we use, we will never get below this error.",s:"Slide 34"},
+{ch:"3",t:"The bias of a learner measures its tendency to consistently mispredict certain instances regardless of the training data.",a:true,e:"Bias = E²[f_true(x) - f̂(x)]. It captures systematic, consistent errors. A high-bias model (low capacity) cannot represent the true function.",s:"Slide 35"},
+{ch:"3",t:"The variance of a learner measures how much the model's predictions change as we vary the training dataset.",a:true,e:"Variance = Var_{D_n}(f̂(x)): how much does the trained model vary across different training sets drawn from the same distribution? High variance = overfitting.",s:"Slide 35"},
+{ch:"3",t:"Models with high capacity have low bias and high variance.",a:true,e:"High capacity → complex hypothesis space → the model can fit the true function (low bias) but is also sensitive to the specific training data (high variance). This matches the overfitting behavior.",s:"Slide 35"},
+{ch:"3",t:"Models with low capacity have low bias and high variance.",a:false,e:"Low capacity → restricted hypothesis space → the model cannot fit the true function (HIGH bias), but its limited flexibility means it is insensitive to training set variation (LOW variance).",s:"Slide 35"},
+{ch:"3",t:"The bias-variance trade-off means it is generally impossible to simultaneously achieve low bias and low variance.",a:true,e:"Increasing capacity lowers bias but raises variance; decreasing capacity raises bias but lowers variance. This fundamental trade-off means optimal performance requires balancing the two.",s:"Slide 37"},
+{ch:"3",t:"As model capacity increases, both bias and variance increase simultaneously.",a:false,e:"They trade off: as capacity increases, bias DECREASES while variance INCREASES. The generalization error is their sum.",s:"Slide 37"},
+{ch:"3",t:"As the size of the training set grows indefinitely, both the training error and generalization error converge to the bias of the algorithm (assuming zero noise).",a:true,e:"With more data, the variance term vanishes (more stable estimates), so both errors converge to the irreducible bias.",s:"Slide 38"},
+{ch:"3",t:"To reduce underfitting, one should make the model less flexible or apply regularization.",a:false,e:"Underfitting is caused by high bias (too little capacity). To reduce underfitting, one should make the model MORE flexible (increase capacity). Regularization reduces variance (fights overfitting).",s:"Slide 39"},
+{ch:"3",t:"To reduce overfitting, one can add more training data or apply regularization.",a:true,e:"Overfitting is high variance. More data reduces variance (more stable estimates), and regularization explicitly constrains model complexity. Both reduce the gap between training and test error.",s:"Slide 39"},
+{ch:"3",t:"The No Free Lunch theorem states that when averaged over all possible problems, no learning algorithm is better than any other, including random guessing.",a:true,e:"NFL is a fundamental result: specialization on one class of problems comes at the cost of worse performance on others. Summing over all possible data-generating distributions, every algorithm performs equally.",s:"Slide 42"},
+{ch:"3",t:"The No Free Lunch theorem implies that no single algorithm is universally the best for all problems.",a:true,e:"This is the direct implication: any algorithm that excels on one problem distribution must fail on another. There is no 'master algorithm' that dominates all others on all tasks.",s:"Slide 43"},
+{ch:"3",t:"In practice, the No Free Lunch theorem makes machine learning impossible.",a:false,e:"In practice, we only encounter an infinitesimal subset of all possible problems. By incorporating valid prior assumptions (smoothness, linearity, etc.), ML works well in practice.",s:"Slide 44"},
+{ch:"3",t:"Machine learning is considered an ill-posed problem because even after observing training data, many consistent hypotheses remain.",a:true,e:"With 4 boolean features, there are 2^16 = 65536 possible functions. After observing 7 training examples, 2^9 = 512 functions remain consistent. Without assumptions, we cannot choose among them.",s:"Slide 41"},
+{ch:"3",t:"Without making assumptions (inductive bias) about the problem, machine learning simply is not possible.",a:true,e:"The No Free Lunch theorem formalizes this: without prior assumptions, no algorithm generalizes. In practice, assumptions like smoothness, linearity, or locality make generalization possible.",s:"Slide 43"},
+
+/* ──────────────────────── CHAPTER 4 (130 questions) ──────────────────────── */
+{ch:"4",t:"Machine learning can be fully described by three components: representation (hypothesis space), cost function, and optimization.",a:true,e:"Exactly. Learning = Representation + Cost + Optimization. These three are the fundamental building blocks of any supervised learning algorithm.",s:"Slide 4-1 (Risk Min. I)"},
+{ch:"4",t:"Given a fixed hypothesis space, different cost functions will always yield the same optimal model.",a:false,e:"Even within the same hypothesis space of linear models, different cost functions (L1, L2, quantile loss, etc.) yield different fitted models. The cost function determines what 'best' means.",s:"Slide 4-3 (Risk Min. I)"},
+{ch:"4",t:"A loss function L(y, f(x)) must satisfy non-negativity: L(y, ỹ) ≥ 0 for all y, ỹ ∈ Y.",a:true,e:"This is one of the two required properties of a loss function: (1) non-negativity and (2) optimality: L(y, ỹ) = 0 iff y = ỹ. The function y − f(x) fails because it can be negative.",s:"Slide 4-4 (Risk Min. I)"},
+{ch:"4",t:"A loss function equals zero if and only if the prediction equals the true target.",a:true,e:"The optimality condition: L(y, ỹ) = 0 ⟺ y = ỹ. Perfect predictions incur zero cost, and any deviation incurs a strictly positive penalty.",s:"Slide 4-4 (Risk Min. I)"},
+{ch:"4",t:"L(y, f(x)) = y − f(x) is a valid loss function for regression.",a:false,e:"This does not satisfy non-negativity, since y − f(x) can be negative (when the prediction overshoots). A valid regression loss must be ≥ 0 everywhere.",s:"Slide 4-4 (Risk Min. I)"},
+{ch:"4",t:"The residual is defined as r = y − f(x), the difference between the true target and the model's prediction.",a:true,e:"The residual measures the raw prediction error. Regression losses that can be written purely as a function of r are called distance-based losses.",s:"Slide 4-6 (Risk Min. I)"},
+{ch:"4",t:"A distance-based loss can be written as L(y, f(x)) = ψ(r) for some function ψ with ψ(0) = 0.",a:true,e:"A loss is distance-based if it depends only on the residual r = y − f(x) and equals zero when r = 0. This is equivalent to the loss being translation-invariant.",s:"Slide 4-6 (Risk Min. I)"},
+{ch:"4",t:"Translation-invariance and distance-based are two different properties that a loss may have independently of each other.",a:false,e:"They are equivalent: a loss is translation-invariant if and only if it is distance-based. The proof goes both ways.",s:"Slide 4-7 (Risk Min. I)"},
+{ch:"4",t:"Pseudo-residuals are defined as the negative first derivative of the loss function with respect to f.",a:true,e:"The pseudo-residual is r̃ = −∂L(y, f(x))/∂f. For the L2-loss, the pseudo-residual equals y − f(x) = r.",s:"Slide 4-7 (Risk Min. I)"},
+{ch:"4",t:"For the L2-loss, pseudo-residuals and ordinary residuals are identical.",a:true,e:"Using L = 0.5(y − f(x))², we compute: r̃ = −∂/∂f [0.5(y − f(x))²] = y − f(x) = r.",s:"Slide 4-7 (Risk Min. I)"},
+{ch:"4",t:"Theoretical risk minimization requires knowledge of the true joint distribution P_xy.",a:true,e:"The theoretical risk is R(f) = E[L(y, f(x))] = ∫ L(y, f(x)) dP_xy. Computing or minimizing this requires knowing P_xy.",s:"Slide 4-9 (Risk Min. I)"},
+{ch:"4",t:"For the L2-loss with an unrestricted hypothesis space, the optimal prediction at input x is the conditional mean E[y | x].",a:true,e:"Minimizing E[(y − f(x))² | x] point-wise over all possible f(x) = c is minimized at c = E[y | x].",s:"Slide 4-10 & 4-11 (Risk Min. I)"},
+{ch:"4",t:"The empirical risk R_emp(f) = Σ L(y^(i), f(x^(i))) approximates the theoretical risk when the data is i.i.d. from P_xy.",a:true,e:"By the law of large numbers, the empirical average converges to E[L(y, f(x))] = R(f) as n → ∞.",s:"Slide 4-13 (Risk Min. I)"},
+{ch:"4",t:"The factor 1/n in the empirical risk affects which model is chosen as the minimizer.",a:false,e:"The factor 1/n is a positive constant that does not change the location of the minimum. R_emp and R̄_emp yield the same θ̂.",s:"Slide 4-13 (Risk Min. I)"},
+{ch:"4",t:"If the loss function is convex in its second argument and f(x|θ) is linear in θ, then R_emp(θ) is convex.",a:true,e:"A sum of convex functions is convex. Convexity guarantees that every local minimum is a global minimum, making gradient-based optimization reliable.",s:"Slide 4-15 (Risk Min. I)"},
+{ch:"4",t:"The L2-loss is defined as L(y, f(x)) = (y − f(x))², and it is both convex and differentiable everywhere.",a:true,e:"The L2-loss is a quadratic in the residual — globally convex (second derivative 2 > 0 everywhere) and infinitely differentiable.",s:"Slide 4-17 (Risk Min. I)"},
+{ch:"4",t:"The L2-loss penalizes large residuals disproportionately: if the residual doubles, the loss quadruples.",a:true,e:"Since L = r², doubling r gives L = (2r)² = 4r². Outliers dominate the empirical risk.",s:"Slide 4-17 (Risk Min. I)"},
+{ch:"4",t:"The optimal constant model f(x) = θ that minimizes the empirical L2-risk is the sample mean ȳ.",a:true,e:"Setting ∂R_emp/∂θ = −2 Σ(y^(i) − θ) = 0 gives θ̂ = ȳ.",s:"Slide 4-18 & 4-19 (Risk Min. I)"},
+{ch:"4",t:"Gaussian errors in the data generating process correspond to L2 loss minimization via maximum likelihood.",a:true,e:"If ε ~ N(0, σ²), the MLE objective is equivalent to minimizing Σ(y^(i) − f(x^(i)|θ))², i.e., the L2 empirical risk.",s:"Slide 4-49 (Risk Min. I)"},
+{ch:"4",t:"The L1-loss L(y, f(x)) = |y − f(x)| is more robust to outliers than the L2-loss.",a:true,e:"|r| grows linearly rather than quadratically with the residual, so outliers contribute proportionally. The optimal constant is the median, not the mean.",s:"Slide 4-21 (Risk Min. I)"},
+{ch:"4",t:"The L1-loss is differentiable everywhere, making it straightforward to use with gradient descent.",a:false,e:"The absolute value function |r| is not differentiable at r = 0. Standard gradient descent is inapplicable at that point.",s:"Slide 4-21 (Risk Min. I)"},
+{ch:"4",t:"The optimal constant model with respect to the L1-loss is the sample median of the observed responses.",a:true,e:"Minimizing Σ|y^(i) − θ| over θ yields θ̂ = median({y^(i)}). The median minimizes the sum of absolute deviations.",s:"Slide 4-22 (Risk Min. I)"},
+{ch:"4",t:"Laplace-distributed errors in the data generating process correspond to L1 loss minimization via maximum likelihood.",a:true,e:"If ε ~ Laplace(0, b), the negative log-likelihood is proportional to Σ|y^(i) − f(x^(i)|θ)|, exactly the L1 empirical risk.",s:"Slide 4-50 (Risk Min. I)"},
+{ch:"4",t:"The quantile (pinball) loss with α = 0.5 is equivalent to the L1-loss (up to a constant factor).",a:true,e:"At α = 0.5, the quantile loss becomes L = 0.5|y − f(x)| for both positive and negative residuals. This equals 0.5 × L1-loss.",s:"Slide 4-24 (Risk Min. I)"},
+{ch:"4",t:"With α < 0.5, the quantile loss penalizes over-estimation (f(x) > y) more than under-estimation.",a:true,e:"When α < 0.5, the factor (1−α) > 0.5 > α, so over-prediction is penalized more than under-prediction.",s:"Slide 4-24 (Risk Min. I)"},
+{ch:"4",t:"The optimal constant model with respect to the quantile loss is the empirical α-quantile of the response values.",a:true,e:"Minimizing the asymmetric quantile loss over a constant θ yields θ̂ = Q_α({y^(i)}), the empirical α-quantile.",s:"Slide 4-26 (Risk Min. I)"},
+{ch:"4",t:"The quantile loss is differentiable everywhere, just like the L2-loss.",a:false,e:"The quantile loss is piecewise linear (like L1), with a kink at the point where the residual is zero. It is not differentiable at this point.",s:"Slide 4-24 (Risk Min. I)"},
+{ch:"4",t:"The Huber loss is convex, differentiable everywhere, and more robust than L2.",a:true,e:"The Huber loss combines L2 (for |r| ≤ δ) and L1 (for |r| > δ), making it convex, differentiable everywhere, and robust to outliers.",s:"Slide 4-28 (Risk Min. I)"},
+{ch:"4",t:"For residuals smaller than δ in absolute value, the Huber loss behaves like the L1-loss.",a:false,e:"For |r| ≤ δ, the Huber loss is (1/2)(y − f(x))², which is the L2-loss. Only for |r| > δ does it switch to linear behavior.",s:"Slide 4-28 (Risk Min. I)"},
+{ch:"4",t:"The optimal constant model for Huber loss has a closed-form analytical solution.",a:false,e:"Unlike L2 (mean) and L1 (median), the Huber loss has no closed-form minimizer. Numerical iterative optimization methods are required.",s:"Slide 4-30 (Risk Min. I)"},
+{ch:"4",t:"As δ increases, the Huber loss behaves more and more like the L2-loss.",a:true,e:"As δ → ∞, the linear part becomes increasingly irrelevant. In the limit, all residuals fall in the quadratic region, and Huber becomes identical to L2.",s:"Slide 4-29 (Risk Min. I)"},
+{ch:"4",t:"The ε-insensitive loss assigns zero penalty to predictions that fall within ε of the true value.",a:true,e:"The ε-insensitive loss is L = 0 if |y − f(x)| ≤ ε, and |y − f(x)| − ε otherwise. This is the loss used in Support Vector Regression (SVR).",s:"Slide 4-41 (Risk Min. I)"},
+{ch:"4",t:"The log-barrier loss imposes an infinite penalty for residuals larger than a threshold a.",a:true,e:"The log-barrier loss is L = −a² log(1 − (|r|/a)²) for |r| ≤ a, and ∞ for |r| > a.",s:"Slide 4-43 (Risk Min. I)"},
+{ch:"4",t:"The log-barrier loss behaves like the L1-loss for small residuals.",a:false,e:"For small residuals (|r| ≪ a), the log-barrier loss approximates the L2-loss (quadratic behavior). For small r, −a² log(1 − (r/a)²) ≈ r².",s:"Slide 4-43 (Risk Min. I)"},
+{ch:"4",t:"Gradient descent updates parameters by moving in the direction of the negative gradient of the empirical risk.",a:true,e:"The update rule is θ^[j+1] = θ^[j] − α^[j] · ∇_θ R_emp(θ). The negative gradient points in the direction of steepest descent.",s:"Slide 4-32 (Risk Min. I)"},
+{ch:"4",t:"Standard (batch) gradient descent uses all training observations to compute each gradient update.",a:true,e:"In standard gradient descent, ∇R_emp = (1/n)Σ_{i=1}^n ∇_θ L(y^(i), f(x^(i)|θ)). Every training example contributes to each update.",s:"Slide 4-32 (Risk Min. I)"},
+{ch:"4",t:"Stochastic Gradient Descent (SGD) uses a single randomly drawn observation per update step.",a:true,e:"SGD approximates the true gradient using a single observation. This makes each update cheap to compute but introduces high variance.",s:"Slide 4-39 (Risk Min. I)"},
+{ch:"4",t:"Mini-batch gradient descent uses a random subset of observations per update.",a:true,e:"Mini-batch GD balances the computational efficiency of SGD with lower gradient variance than SGD.",s:"Slide 4-40 (Risk Min. I)"},
+{ch:"4",t:"Gradient descent is guaranteed to find the global minimum of the empirical risk for any loss function.",a:false,e:"Gradient descent is only guaranteed to converge to a local minimum. Only when R_emp(θ) is convex does every local minimum equal the global minimum.",s:"Slide 4-15 & 4-32 (Risk Min. I)"},
+{ch:"4",t:"Minimizing the negative log-likelihood is equivalent to minimizing the empirical risk when the loss is L(y, f(x|θ)) = −log p(y|x, θ).",a:true,e:"If L = −log p(y|x, θ), then R_emp(θ) = −ℓ(θ), the negative log-likelihood. Minimizing R_emp is identical to maximizing ℓ(θ), the MLE objective.",s:"Slide 4-47 (Risk Min. I)"},
+{ch:"4",t:"For every loss function, there exists a corresponding probability distribution for the errors.",a:false,e:"Some losses cannot be expressed as −log p(y|x, θ) for any proper probability density p. The hinge loss (used in SVMs) is the most prominent example.",s:"Slide 4-48 (Risk Min. I)"},
+{ch:"4",t:"Multiplicative constants in the loss function do not change the optimal parameter estimate.",a:true,e:"For any constant c > 0: argmin_θ c·R_emp(θ) = argmin_θ R_emp(θ). Scaling by a positive constant does not change the location of the minimum.",s:"Slide 4-48 (Risk Min. I)"},
+{ch:"4",t:"In classification, loss functions can be defined on hard labels h(x), class scores f(x), or class probabilities π(x).",a:true,e:"These three types correspond to hard-label classifiers, scoring classifiers, and probabilistic classifiers.",s:"Slide 4-8 (Risk Min. II)"},
+{ch:"4",t:"The margin y·f(x) is positive if and only if the prediction sign(f(x)) matches the true class y.",a:true,e:"With y ∈ {−1, +1}: if y = sign(f(x)), then y and f(x) have the same sign, so y·f(x) > 0.",s:"Slide 4-9 (Risk Min. II)"},
+{ch:"4",t:"The quantity |f(x)| is called the confidence of a binary scoring classifier.",a:true,e:"While sign(f(x)) gives the predicted class, |f(x)| measures how confident the classifier is in that prediction.",s:"Slide 4-9 (Risk Min. II)"},
+{ch:"4",t:"The binary 0-1 loss is not continuous and its optimization is NP-hard even for linear classifiers.",a:true,e:"L = 1{y·f(x)<0} is a step function — not continuous, not differentiable. Minimizing the empirical 0-1 loss is NP-hard even for linear f.",s:"Slide 4-11 (Risk Min. II)"},
+{ch:"4",t:"The optimal constant classifier w.r.t. the multiclass 0-1-loss always predicts the most frequent class.",a:true,e:"The empirical risk is minimized by choosing the class with the highest count, i.e., the mode of the response values.",s:"Slide 4-12 (Risk Min. II)"},
+{ch:"4",t:"The Bayes classifier for the 0-1-loss assigns each point x to the most probable class according to the posterior distribution.",a:true,e:"ĥ(x) = argmax_l P(y=l|x) — predict the most probable class.",s:"Slide 4-5 (Risk Min. II)"},
+{ch:"4",t:"The Bayes error rate is the minimum achievable expected loss for the 0-1-loss, assuming perfect knowledge of P_xy.",a:true,e:"The Bayes classifier achieves the minimum possible expected 0-1-loss — the Bayes error rate. No classifier can do better on average.",s:"Slide 4-5 (Risk Min. II)"},
+{ch:"4",t:"The 0-1-loss corresponds to a cost matrix with zeros on the diagonal and ones everywhere else.",a:true,e:"For 0-1-loss, the cost matrix has 0 on the diagonal (correct predictions) and 1 everywhere off-diagonal (all misclassifications equally penalized).",s:"Slide 4-4 (Risk Min. II)"},
+{ch:"4",t:"The binary Brier score is the squared difference between the predicted probability π(x) and the true binary outcome y.",a:true,e:"L(y, π(x)) = (π(x) − y)² for y ∈ {0,1}. This is the L2-loss applied to probabilities.",s:"Slide 4-13 (Risk Min. II)"},
+{ch:"4",t:"The Brier score is a proper scoring rule, meaning the true predictive distribution achieves the minimum expected loss.",a:true,e:"A proper scoring rule incentivizes reporting honest, calibrated probabilities. If you know the true π(x), reporting it minimizes E[L].",s:"Slide 4-13 (Risk Min. II)"},
+{ch:"4",t:"The optimal constant model for the Brier score is the proportion of class-1 observations in the training data.",a:true,e:"Minimizing Σ(y^(i) − θ)² gives θ̂ = (1/n)Σy^(i), the sample proportion of class-1 observations.",s:"Slide 4-15 (Risk Min. II)"},
+{ch:"4",t:"For multiclass classification with g classes, the Brier score sums squared differences across all g class probabilities.",a:true,e:"The multiclass Brier score is L(y, f(x)) = Σ_{k=1}^g (1{y=k} − π_k(x))².",s:"Slide 4-16 (Risk Min. II)"},
+{ch:"4",t:"The Bernoulli loss is derived from the negative log-likelihood under the assumption that y is Bernoulli distributed.",a:true,e:"If y^(i) ~ Bernoulli(π(x^(i))), negating the log-likelihood gives the Bernoulli loss: L = −y log(π(x)) − (1−y) log(1−π(x)).",s:"Slide 4-19 (Risk Min. II)"},
+{ch:"4",t:"The Bernoulli loss is also known as the logarithmic loss or cross-entropy loss.",a:true,e:"All three names refer to the same loss function: L = −y log(π) − (1−y) log(1−π).",s:"Slide 4-20 (Risk Min. II)"},
+{ch:"4",t:"The optimal constant model for the Bernoulli loss predicts the fraction of class-1 observations in the data.",a:true,e:"Differentiating and setting to zero gives θ̂ = (1/n)Σy^(i), the empirical class-1 proportion.",s:"Slide 4-21 (Risk Min. II)"},
+{ch:"4",t:"The multiclass logarithmic loss for g classes is L(y, f(x)) = −Σ_{k=1}^g 1{y=k} log(π_k(x)).",a:true,e:"Since only the indicator for the true class is nonzero, this simplifies to L = −log(π_{y}(x)).",s:"Slide 4-22 (Risk Min. II)"},
+{ch:"4",t:"The exponential loss L(y, f(x)) = exp(−y·f(x)) is used in the AdaBoost algorithm.",a:true,e:"AdaBoost minimizes the sum of exponential losses over training data. The exponential weighting drives AdaBoost to focus intensely on hard-to-classify examples.",s:"Slide 4-17 (Risk Min. II)"},
+{ch:"4",t:"The exponential loss is convex and differentiable, making it easier to optimize than the 0-1-loss.",a:true,e:"exp(−y·f(x)) is infinitely differentiable and strictly convex. It serves as a smooth, convex upper bound on the 0-1-loss.",s:"Slide 4-17 (Risk Min. II)"},
+{ch:"4",t:"Even correct predictions with high confidence still incur a positive exponential loss.",a:true,e:"For a correctly classified point with margin y·f(x) = M > 0, the loss is exp(−M) > 0 for all finite M. The exponential loss only reaches zero asymptotically.",s:"Slide 4-17 (Risk Min. II)"},
+{ch:"4",t:"The logistic sigmoid function maps any real-valued score f(x) ∈ ℝ to a probability in (0, 1).",a:true,e:"The logistic function s(f(x)) = 1/(1 + exp(−f(x))) is strictly between 0 and 1 for all finite f(x).",s:"Slide 4-24 (Risk Min. II)"},
+{ch:"4",t:"The logistic loss L(y, f(x)) = log(1 + exp(−y·f(x))) for y ∈ {−1, +1} is equivalent to the Bernoulli loss when scores are passed through the logistic sigmoid.",a:true,e:"These two losses are equivalent when the logistic transformation links scores to probabilities.",s:"Slide 4-24 & 4-25 (Risk Min. II)"},
+{ch:"4",t:"Using f(x) = θ_0 + θ^⊤x in the logistic loss setup leads to logistic regression.",a:true,e:"When f(x) = θ_0 + θ^⊤x and the loss is the logistic loss, the resulting ERM problem defines logistic regression.",s:"Slide 4-25 (Risk Min. II)"},
+{ch:"4",t:"The logistic loss is robust to outliers, since it saturates for large negative margins.",a:false,e:"The logistic loss does not saturate — it grows linearly for large negative margins. It is not robust in the same way as Huber or L1-loss.",s:"Slide 4-26 (Risk Min. II)"},
+{ch:"4",t:"The minimizer of the theoretical risk under logistic loss is f̂(x) = log[P(y|x) / (1 − P(y|x))], the log-odds.",a:true,e:"Minimizing the expected logistic loss yields f̂(x) = log[P(y=1|x) / P(y=0|x)], the log-odds (logit) of the conditional probability of class 1.",s:"Slide 4-27 (Risk Min. II)"},
+{ch:"4",t:"The cross-entropy loss is equivalent to the logistic loss when scores are transformed to probabilities by the logistic function.",a:true,e:"Cross-entropy, Bernoulli loss, and logistic loss are three perspectives on the same loss. They are all equivalent when the logistic sigmoid is used.",s:"Slide 4-28 (Risk Min. II)"},
+{ch:"4",t:"Ordinary linear regression corresponds to empirical risk minimization with the L2 (squared) loss.",a:true,e:"OLS minimizes Σ(y^(i) − f(x^(i)|θ))², which is exactly the empirical L2-risk for a linear model.",s:"Slide 4-29 (Risk Min. II)"},
+{ch:"4",t:"Support Vector Machines for classification use the hinge loss, which does not correspond to any standard probability distribution.",a:true,e:"The hinge loss L = max(0, 1 − y·f(x)) is one of the prominent examples of a loss that cannot be derived from a probability distribution.",s:"Slide 4-29 (Risk Min. II)"},
+{ch:"4",t:"AdaBoost uses the logistic loss, while logistic regression uses the exponential loss.",a:false,e:"It's the other way around: AdaBoost uses the exponential loss, while logistic regression uses the logistic loss.",s:"Slide 4-29 (Risk Min. II)"},
+{ch:"4",t:"Support Vector Regression (SVR) uses the ε-insensitive loss.",a:true,e:"SVR minimizes a combination of model complexity and the ε-insensitive loss, ignoring prediction errors below ε.",s:"Slide 4-29 (Risk Min. II)"},
+{ch:"4",t:"A loss function that is convex in the residual r is automatically convex in the parameters θ for any model class f(x|θ).",a:false,e:"Convexity in r does not automatically transfer to convexity in θ. The composition L(y, f(x|θ)) is convex in θ only if f(x|θ) is also linear in θ.",s:"Slide 4-15 (Risk Min. I)"},
+{ch:"4",t:"Fitting a model with the L1-loss tends to produce residuals that are concentrated near zero with occasional larger values.",a:true,e:"L1-loss (corresponding to Laplace errors) produces residuals that are sharply peaked at zero with heavier tails — the hallmark of a Laplace distribution.",s:"Slide 4-51 (Risk Min. I)"},
+{ch:"4",t:"The hinge loss (used in SVMs) corresponds to the negative log-likelihood of a Gaussian distribution.",a:false,e:"The Gaussian distribution corresponds to the L2-loss. The hinge loss does NOT correspond to any standard probability distribution.",s:"Slide 4-48 (Risk Min. I)"},
+{ch:"4",t:"For the L1-loss L(y, f(x)) = |y − f(x)|, the pseudo-residual is sign(y − f(x)).",a:true,e:"The pseudo-residual is r̃ = −∂|r|/∂f. Since ∂|y−f|/∂f = −sign(r), we get r̃ = sign(y − f(x)).",s:"Slide 4-7 & 4-21 (Risk Min. I)"},
+{ch:"4",t:"Pseudo-residuals are always equal in magnitude to the ordinary residuals, regardless of which loss function is used.",a:false,e:"Only L2 has pseudo-residuals equal to ordinary residuals. For L1: r̃ = sign(r) ∈ {−1,+1}. For Huber: r̃ = r if |r| ≤ δ, else δ·sign(r).",s:"Slide 4-7 (Risk Min. I)"},
+{ch:"4",t:"The Pseudo-residual of the Huber loss equals y − f(x) when |r| > δ.",a:false,e:"For |r| > δ, the Huber loss is linear: L = δ|r| − δ²/2. The pseudo-residual is r̃ = δ · sign(y − f(x)), not the full residual.",s:"Slide 4-34 (Risk Min. I)"},
+{ch:"4",t:"Quantile regression with α = 0.9 produces a model that predicts the 90th percentile of y given x.",a:true,e:"The quantile loss with parameter α targets the α-th conditional quantile Q_α(y|x). Setting α = 0.9 targets the 90th percentile.",s:"Slide 4-26 (Risk Min. I)"},
+{ch:"4",t:"The quantile loss with α > 0.5 penalizes over-prediction (f(x) > y) more than under-prediction.",a:false,e:"With α > 0.5, under-prediction (y ≥ f(x)) is penalized more heavily (factor α), while over-prediction has factor (1−α) < 0.5. So α > 0.5 penalizes under-prediction more.",s:"Slide 4-24 (Risk Min. I)"},
+{ch:"4",t:"The Huber loss is differentiable everywhere because the quadratic and linear pieces are joined with a continuous first derivative at |r| = δ.",a:true,e:"At |r| = δ: the derivative of (1/2)r² is r = δ, and the derivative of δ|r| − δ²/2 is δ·sign(r) = δ. These match exactly, so Huber is C¹.",s:"Slide 4-28 (Risk Min. I)"},
+{ch:"4",t:"With Huber loss (δ → 0), the fitted model converges to the same solution as L2 loss.",a:false,e:"As δ → 0, the Huber loss becomes entirely linear (like L1), converging to the L1 solution (sample median). As δ → ∞, it converges to L2.",s:"Slide 4-29 (Risk Min. I)"},
+{ch:"4",t:"The decision boundary of a binary scoring classifier is where f(x) = 0.",a:true,e:"Since h(x) = sign(f(x)), the boundary between predicting +1 and −1 is where sign(f(x)) switches, i.e., where f(x) = 0.",s:"Slide 4-9 (Risk Min. II)"},
+{ch:"4",t:"Hard labels can always be converted into class probabilities without loss of information.",a:false,e:"Converting class probabilities to hard labels (via argmax) loses information. A hard label y = 1 is consistent with π(x) = 0.51 or π(x) = 0.99.",s:"Slide 4-8, Quiz Solution p.3 (Risk Min. II)"},
+{ch:"4",t:"A probabilistic classifier that always predicts π(x) = 0.5 achieves a Brier score of 0.25 regardless of the true labels.",a:true,e:"For any y ∈ {0,1}: L = (0.5 − y)² = 0.25. So the empirical Brier score for a constant 0.5 predictor is always exactly 0.25.",s:"Slide 4-13 & 4-14 (Risk Min. II)"},
+{ch:"4",t:"The logistic loss approaches 0 as the margin y·f(x) → +∞, but never reaches 0 for any finite score.",a:true,e:"L = log(1 + exp(−y·f(x))). As y·f(x) → +∞, exp(−y·f(x)) → 0, so L → log(1) = 0. But for any finite margin, L > 0.",s:"Slide 4-26 (Risk Min. II)"},
+{ch:"4",t:"The exponential loss penalizes misclassified observations much more severely than the logistic loss for large negative margins.",a:true,e:"For large negative margin m → −∞: exponential loss = exp(−m) → ∞ exponentially, while logistic loss ≈ −m grows only linearly.",s:"Slide 4-17 (Risk Min. II)"},
+{ch:"4",t:"The Bernoulli loss is undefined when the predicted probability π(x) = 0 and the true label y = 1.",a:true,e:"L = −y log(π(x)). When y = 1 and π(x) = 0: L = −1·log(0) = +∞. This represents an infinite penalty for being perfectly wrong.",s:"Slide 4-20 (Risk Min. II)"},
+{ch:"4",t:"A proper scoring rule incentivizes the forecaster to predict the true underlying probability distribution honestly.",a:true,e:"A scoring rule S(π, y) is proper if the expected score is minimized when π equals the true distribution. Proper rules discourage hedging strategies.",s:"Slide 4-13 (Risk Min. II)"},
+{ch:"4",t:"The 0-1-loss is a proper scoring rule for probabilistic classifiers.",a:false,e:"The 0-1-loss is not a proper scoring rule. It does not incentivize predicting calibrated probabilities. Proper scoring rules (Brier score, log-loss) reward accurate probability estimates.",s:"Slide 4-13 (Risk Min. II)"},
+{ch:"4",t:"The empirical risk evaluated on training data is always a biased (optimistic) estimate of the true generalization error.",a:true,e:"The training error is minimized during model fitting, so R_emp on training data underestimates R(f). This optimism grows with model complexity.",s:"Slide 4-13 (Risk Min. I)"},
+{ch:"4",t:"Knowing the optimal constant model for a loss function tells us what the loss implicitly assumes about the target distribution.",a:true,e:"The optimal constant reveals the loss's 'target statistic': L2 targets E[y] (mean), L1 targets Q_{0.5}(y) (median), quantile loss targets Q_α(y), Brier score targets P(y=1).",s:"Slides 4-19, 4-22, 4-26 (Risk Min. I)"},
+{ch:"4",t:"All of the regression losses discussed (L1, L2, Huber, quantile, ε-insensitive) are convex functions of the residual.",a:true,e:"All five are convex in r = y − f(x): L2 (quadratic), L1 (absolute value), Huber (piecewise), quantile (piecewise linear), ε-insensitive (piecewise linear).",s:"Slide 4-44 (Risk Min. I)"},
+{ch:"4",t:"The log-barrier loss is the only regression loss discussed that can make the risk minimization problem infeasible.",a:true,e:"If the optimal model necessarily produces residuals exceeding a, the minimum of R_emp is +∞. All other losses are finite for any finite prediction.",s:"Slide 4-43 (Risk Min. I)"},
+{ch:"4",t:"The multiclass logarithmic loss is not sensitive to the probabilities assigned to incorrect classes, only to the probability assigned to the true class.",a:true,e:"L = −log(π_y(x)) depends only on π_y(x). However, since probabilities must sum to 1, there is an indirect coupling through the softmax constraint.",s:"Slide 4-22 (Risk Min. II)"},
+{ch:"4",t:"Logistic regression minimizes the logistic loss (or equivalently, Bernoulli loss with logistic link) over a linear hypothesis space.",a:true,e:"Logistic regression is defined by: (1) f(x) = θ_0 + θ^⊤x; (2) π(x) = sigmoid(f(x)); (3) ERM with Bernoulli/logistic loss.",s:"Slide 4-25 (Risk Min. II)"},
+{ch:"4",t:"The noise model ε ~ N(0, σ²) implies that y | x ~ N(f_true(x), σ²).",a:true,e:"If y = f_true(x) + ε and ε ~ N(0, σ²) independently of x, then y | x ~ N(f_true(x), σ²). This is the standard Gaussian noise model underlying OLS.",s:"Slide 4-46 (Risk Min. I)"},
+{ch:"4",t:"If the errors follow a Gaussian distribution N(0, σ²), increasing σ changes the optimal parameter estimate θ̂ under MLE.",a:false,e:"The MLE for Gaussian errors minimizes Σ(y^(i) − f(x^(i)|θ))²/(2σ²). Since σ² is a positive constant, it cancels out in the minimization. θ̂ is unchanged.",s:"Slide 4-49 (Risk Min. I)"},
+{ch:"4",t:"The MLE perspective provides a principled way to choose a loss function: assume a noise model, then derive the corresponding loss as the negative log-likelihood.",a:true,e:"The recipe: (1) choose an error distribution; (2) derive p(y|x,θ); (3) the loss is −log p(y|x,θ). Gaussian → L2, Laplace → L1, Bernoulli → cross-entropy.",s:"Slide 4-47 & 4-48 (Risk Min. I)"},
+{ch:"4",t:"In gradient descent, the step size α^[j] (learning rate) must be chosen carefully: too large leads to divergence, too small leads to very slow convergence.",a:true,e:"The step size controls the trade-off between speed and stability. If α is too large, the update overshoots and may diverge. If too small, each update makes negligible progress.",s:"Slide 4-32 (Risk Min. I)"},
+{ch:"4",t:"For the constant model f(x) = θ with L2-loss, gradient descent converges in a single step to the sample mean.",a:false,e:"Gradient descent is iterative. The L2 loss for a constant model has a closed-form solution ȳ, which is why we can directly jump to it analytically instead of using gradient descent.",s:"Slide 4-32 (Risk Min. I)"},
+{ch:"4",t:"SGD's parameter sequence {θ^[1], θ^[2], ...} is stochastic because each step uses a randomly drawn training observation.",a:true,e:"In SGD, observation i is drawn randomly at each step, making the gradient estimate random and the entire sequence of parameters a stochastic process.",s:"Slide 4-39 (Risk Min. I)"},
+
+/* ──────────────────────── CHAPTER 5 — LINEAR MODELS (165 questions) ──────────────────────── */
+{ch:"5L",t:"The hypothesis space of univariate linear models H = {f(x) = θ₀ + θ₁x | θ₀, θ₁ ∈ ℝ} can represent any curve including parabolas.",a:false,e:"The univariate linear hypothesis space only contains straight lines — functions linear in x. Parabolas require polynomial terms (x²) and belong to a different, more expressive hypothesis space.",s:"Slide 5"},
+{ch:"5L",t:"Minimizing the empirical risk under L2 loss for a univariate linear model requires numerical optimization methods like gradient descent.",a:false,e:"The L2 loss is differentiable and the resulting empirical risk minimization problem is convex. Setting partial derivatives to zero yields closed-form analytical solutions.",s:"Slides 7–8"},
+{ch:"5L",t:"The optimal intercept θ̂₀ under L2 loss satisfies θ̂₀ = ȳ − θ̂₁x̄, meaning the regression line always passes through (x̄, ȳ).",a:true,e:"Plugging x = x̄ into ŷ = θ̂₀ + θ̂₁x gives ŷ = ȳ. The OLS line passes exactly through the point of means (x̄, ȳ).",s:"Slide 8"},
+{ch:"5L",t:"The optimal slope θ̂₁ in univariate linear regression equals the sample correlation ρ_xy multiplied by s_y / s_x.",a:true,e:"From the closed-form: θ̂₁ = ρ_xy · (s_y / s_x). The slope depends on how strongly x and y co-vary and on the ratio of their spreads.",s:"Slides 8–9"},
+{ch:"5L",t:"If ρ_xy = 0, the best-fitting linear model under L2 loss predicts the mean of y for all x.",a:true,e:"Since θ̂₁ = ρ_xy · s_y/s_x = 0, the model reduces to ŷ = ȳ — the constant baseline.",s:"Slides 8–9"},
+{ch:"5L",t:"The sample correlation coefficient ρ_xy measures nonlinear association between x and y.",a:false,e:"Pearson correlation captures only linear association. Variables can have strong nonlinear relationships with ρ_xy ≈ 0.",s:"Slide 9"},
+{ch:"5L",t:"R² compares the SSE of the fitted linear model to the SSE of the constant model c(x) = ȳ.",a:true,e:"R² = 1 − Remp(θ)/Remp(c). It quantifies how much better the linear model is compared to predicting the mean.",s:"Slides 10–12"},
+{ch:"5L",t:"R² = 1 means perfect fit (all residuals zero); R² = 0 means the model predicts no better than c(x) = ȳ.",a:true,e:"R² = 1 − SSE_model/SSE_constant. Zero numerator gives R² = 1; equal SSEs give R² = 0.",s:"Slide 13"},
+{ch:"5L",t:"On training data, R² always lies in [0, 1].",a:true,e:"The linear model minimises the same loss over a larger space than the constant, so it can never do worse: R² ≥ 0. And SSE_model ≥ 0 ensures R² ≤ 1.",s:"Slide 13"},
+{ch:"5L",t:"R² can be negative when evaluated on test data.",a:true,e:"On unseen test data the linear model may generalise worse than ȳ, making SSE_model > SSE_constant and R² < 0.",s:"Slide 13"},
+{ch:"5L",t:"In univariate linear regression R² = ρ²_xy.",a:true,e:"Substituting the estimated linear model into the R² formula and simplifying using the definitions yields exactly R² = ρ²_xy.",s:"Slides 14–15"},
+{ch:"5L",t:"R² is only meaningful for L2 loss and the linear model.",a:false,e:"1 − Remp(f)/Remp(c) can be used for any model f, baseline c, and loss function.",s:"Slide 16"},
+{ch:"5L",t:"The linear model with L1 loss estimates the conditional median of y given x.",a:true,e:"Minimising mean absolute error is equivalent to estimating the median.",s:"Slide 17"},
+{ch:"5L",t:"The L1 loss is differentiable everywhere, enabling a closed-form OLS-style solution.",a:false,e:"L1 has a kink at the residual zero, preventing closed-form calculus solutions.",s:"Slide 17"},
+{ch:"5L",t:"The Huber loss behaves quadratically for small residuals and linearly for large residuals.",a:true,e:"Huber loss = (1/2)r² for |r| ≤ δ (smooth like L2) and δ|r|−δ²/2 for |r| > δ (robust like L1).",s:"Slide 18"},
+{ch:"5L",t:"L1 loss is more robust to outliers than L2 loss.",a:true,e:"L2 squares residuals so outliers dominate. L1 grows only linearly, giving outliers proportionally less influence.",s:"Slides 19–20"},
+{ch:"5L",t:"L2, L1, and Huber losses always produce the same fitted model when there are no outliers.",a:false,e:"They optimize different objectives (mean, median, hybrid) and generally produce different estimates even without outliers.",s:"Slides 19–20"},
+{ch:"5L",t:"In multivariate regression a column of ones is prepended to X so that the intercept is absorbed into θ.",a:true,e:"Augmenting x with a leading 1 lets f(x) = θᵀx encode the intercept as the first component of θ.",s:"Slide 21"},
+{ch:"5L",t:"The normal equations Xᵀ(y − Xθ) = 0 are obtained by differentiating the multivariate L2 loss w.r.t. θ.",a:true,e:"Differentiating (y−Xθ)ᵀ(y−Xθ) and setting to zero yields Xᵀ(y−Xθ) = 0, solved by θ̂ = (XᵀX)⁻¹Xᵀy.",s:"Slide 22"},
+{ch:"5L",t:"The OLS estimator θ̂ = (XᵀX)⁻¹Xᵀy exists for any design matrix X.",a:false,e:"(XᵀX)⁻¹ requires full column rank. With linear dependencies among features or n < p, the matrix is singular.",s:"Slide 22"},
+{ch:"5L",t:"Polynomial regression of degree d can be fitted with the standard OLS formula by using powers of x as features.",a:true,e:"The design matrix with columns [1, x, x², …, xᵈ] makes polynomial regression linear in θ, so θ̂ = (XᵀX)⁻¹Xᵀy applies directly.",s:"Slide 26"},
+{ch:"5L",t:"Increasing polynomial degree d always improves generalisation to new data.",a:false,e:"Beyond a point, higher d fits noise rather than signal (overfitting) and causes edge oscillations, degrading generalisation.",s:"Slides 28–29"},
+{ch:"5L",t:"High-degree polynomials can oscillate strongly near the boundaries of the input domain.",a:true,e:"This is Runge's phenomenon: high-degree polynomials fitted to interior data exhibit large oscillations at domain edges.",s:"Slides 28–29"},
+{ch:"5L",t:"Polynomial regression is a special case of multivariate linear regression with features φ(x) = (1, x, x², …, xᵈ).",a:true,e:"The model is linear in θ (the parameters) even though it is non-linear in x. The feature transformation makes it a standard multivariate linear regression.",s:"Slides 25–26"},
+{ch:"5L",t:"Piecewise polynomials divide the domain into K intervals using K−1 interior knots and fit a separate degree-d polynomial on each.",a:true,e:"K intervals separated by K−1 knots, each fitted with an independent polynomial of degree d. Total parameters: K(d+1).",s:"Slide 30"},
+{ch:"5L",t:"A piecewise constant model (d=0) with L2 loss predicts the mean of y within each interval.",a:true,e:"The optimal constant minimizing Σ(y−c)² within a region is the mean. Piecewise constant = histogram estimator.",s:"Slide 31"},
+{ch:"5L",t:"Piecewise polynomial models automatically guarantee continuity at the knots.",a:false,e:"Without additional constraints each piece is independent, allowing jumps at knots. Continuity must be explicitly enforced, leading to splines.",s:"Slide 36"},
+{ch:"5L",t:"Regression splines add continuity constraints at knots, reducing the total number of free parameters.",a:true,e:"Each continuity constraint removes one degree of freedom. The truncated power basis encodes these constraints algebraically.",s:"Slides 36–39"},
+{ch:"5L",t:"For a linear spline (d=1) with one knot ζ₁, the basis is b₁=1, b₂=x, b₃=(x−ζ₁)₊.",a:true,e:"The truncated power basis with (x−ζ₁)₊ = max(x−ζ₁, 0) ensures the two pieces join continuously at ζ₁.",s:"Slides 37–38"},
+{ch:"5L",t:"(x−ζ)ᵈ₊ = 0 for x ≤ ζ and (x−ζ)ᵈ for x > ζ.",a:true,e:"By definition (x)₊ = max(x,0), so (x−ζ)ᵈ₊ activates only beyond the knot.",s:"Slide 39"},
+{ch:"5L",t:"Fixed-knot splines are regression splines; data-adaptive penalised splines are smoothing splines.",a:true,e:"Regression splines specify knots in advance. Smoothing splines place knots at every data point and control complexity via a curvature penalty λ.",s:"Slides 40, 45"},
+{ch:"5L",t:"Cubic splines are the lowest-order splines where non-smoothness at knots is invisible to the human eye.",a:true,e:"C² continuity is the minimum needed to suppress visible non-smoothness. Higher orders add cost without perceptual benefit.",s:"Slide 42"},
+{ch:"5L",t:"A cubic spline with knots ζ₁, ζ₂ has exactly six basis functions: 1, x, x², x³, (x−ζ₁)³₊, (x−ζ₂)³₊.",a:true,e:"The truncated power cubic basis has 4 global terms plus one per interior knot, giving 4+2=6 parameters.",s:"Slide 42"},
+{ch:"5L",t:"Going beyond cubic splines is generally recommended for smoother predictions.",a:false,e:"Cubic splines already achieve C² smoothness, which is visually indistinguishable from higher-order smoothness.",s:"Slide 42"},
+{ch:"5L",t:"Natural cubic splines add the constraint that the function is linear beyond the boundary knots.",a:true,e:"This constraint suppresses erratic extrapolation at the domain boundaries and reduces free parameters by 2.",s:"Slide 44"},
+{ch:"5L",t:"A natural cubic spline with K knots has fewer free parameters than an unrestricted cubic spline with the same knots.",a:true,e:"The boundary linearity constraints eliminate 2 degrees of freedom. The natural spline has K parameters vs K+3 for the cubic spline.",s:"Slide 44"},
+{ch:"5L",t:"In smoothing splines, λ=0 corresponds to ordinary linear regression.",a:false,e:"λ=0 means no penalty, so the function interpolates all data points. λ→∞ forces f''=0 everywhere, which is linear regression.",s:"Slide 45"},
+{ch:"5L",t:"The minimiser of the smoothing spline penalised objective is a natural cubic spline with knots at every data point.",a:true,e:"A key theoretical result: among all functions with two continuous derivatives, the unique minimiser is a natural cubic spline with knots at x(1),…,x(n).",s:"Slide 46"},
+{ch:"5L",t:"The optimal λ for a smoothing spline can be chosen by cross-validation.",a:true,e:"Cross-validation evaluates predictive performance for different λ values and selects the one minimising estimated generalisation error.",s:"Slide 47"},
+{ch:"5L",t:"The smoothing spline penalty λ∫[f''(t)]²dt penalises the first derivative of f.",a:false,e:"It penalises the squared second derivative (curvature), not the first. Penalising curvature discourages wiggly functions.",s:"Slide 45"},
+{ch:"5L",t:"A regression stump partitions input space into exactly two regions and makes a constant prediction in each.",a:true,e:"A regression stump has a single split: observations with x_j ≤ t go to node N₁ with prediction c₁, and observations with x_j > t go to node N₂ with prediction c₂.",s:"Slides 48–50"},
+{ch:"5L",t:"For a regression stump with L2 loss, the optimal constant in each leaf is the mean of y in that leaf.",a:true,e:"Minimising Σ(y − c)² gives c* = ȳ_N, the mean of responses in node N.",s:"Slide 52"},
+{ch:"5L",t:"For a regression stump with L1 loss, the optimal constant prediction is the mean of y in that node.",a:false,e:"L1 loss is minimised by the median, not the mean.",s:"Slide 53"},
+{ch:"5L",t:"A regression stump is a regression tree with exactly one split.",a:true,e:"A regression tree built with a single recursive split on the root node is a stump.",s:"Slide 50"},
+{ch:"5L",t:"Finding the optimal split in a regression stump requires exhaustive search over all feature-threshold combinations.",a:true,e:"There is no closed form for the optimal split. All features j and all candidate thresholds t are evaluated.",s:"Slide 51"},
+{ch:"5L",t:"Recursively splitting regression stump nodes produces a regression tree.",a:true,e:"Applying the same splitting criterion recursively to leaf nodes generates a full regression tree.",s:"Slide 54"},
+{ch:"5L",t:"Decision stumps predict constant class probability vectors in each of their two leaf nodes.",a:true,e:"A decision stump outputs a constant g-vector of class probabilities per leaf.",s:"Slides 56–58"},
+{ch:"5L",t:"Under Brier score, the optimal constant prediction in a decision stump node is the vector of empirical class proportions.",a:true,e:"The Brier score Σ_k(1_{y=k}−π_k)² is minimised by π̂_k = n_{N,k}/|N|, the class proportions.",s:"Slide 58"},
+{ch:"5L",t:"Gini impurity splitting is equivalent to risk minimisation w.r.t. the Brier score.",a:true,e:"The lecture proves R(N) = |N|·I_Gini(N), so minimising R(N₁)+R(N₂) equals maximising weighted Gini impurity reduction.",s:"Slides 61–63"},
+{ch:"5L",t:"Entropy-based splitting is equivalent to risk minimisation w.r.t. the log loss.",a:true,e:"R(N) = |N|·(−Σ_k π_k log π_k) = |N|·I_Entropy(N).",s:"Slides 64–65"},
+{ch:"5L",t:"The Gini impurity of a perfectly pure node (all one class) is zero.",a:true,e:"If π_k=1 for one class and 0 for others, I = Σ_k π_k(1−π_k) = 0.",s:"Slide 60"},
+{ch:"5L",t:"The entropy impurity is always numerically larger than the Gini impurity for the same node.",a:false,e:"The two measures have different scales and there is no universal inequality between them.",s:"Slide 60"},
+{ch:"5L",t:"Stumps and trees with entropy splitting use the same loss as logistic regression but differ in hypothesis space.",a:true,e:"Both use log loss. Logistic regression uses linear functions; stumps use step (piecewise constant) functions.",s:"Slide 65"},
+{ch:"5L",t:"Logistic regression uses a linear hypothesis space combined with the logistic loss L(y,f(x)) = log(1+exp(−yf(x))).",a:true,e:"This is the standard logistic regression formulation: f(x)=θᵀx is the score; the logistic loss penalises misclassified margins.",s:"Slide 66"},
+{ch:"5L",t:"The logistic sigmoid s(z) = 1/(1+exp(−z)) maps ℝ to (0,1).",a:true,e:"s(z) is strictly positive and strictly less than 1 for all finite z, mapping the real line to the open interval (0,1).",s:"Slide 66"},
+{ch:"5L",t:"Logistic regression can equivalently minimise the Bernoulli loss −y log π(x) − (1−y) log(1−π(x)).",a:true,e:"Substituting π(x) = σ(θᵀx) into the Bernoulli loss recovers the logistic loss.",s:"Slide 67"},
+{ch:"5L",t:"The decision boundary of logistic regression is the hyperplane f(x) = θᵀx = 0.",a:true,e:"π(x) = 0.5 when f(x) = 0 (sigmoid at zero). Points on this hyperplane are equally likely under both classes.",s:"Slides 71–72"},
+{ch:"5L",t:"The discriminant function f(x) = θᵀx can be interpreted as log(π(x)/(1−π(x))), the log-odds ratio.",a:true,e:"Applying the logit transformation to π(x) = σ(θᵀx) recovers f(x). The linear score equals the log-odds.",s:"Slides 71–72"},
+{ch:"5L",t:"Logistic regression always has a unique bounded solution regardless of the training data.",a:false,e:"On linearly separable data the logistic loss never reaches zero, and scaling θ by c>1 strictly reduces the loss, so no finite minimum exists.",s:"Slides 75–79"},
+{ch:"5L",t:"Scaling logistic regression parameters θ by c>1 reduces empirical risk when data is linearly separable.",a:true,e:"Separability means y(i)(θᵀx(i))>0 for all i. Scaling to cθ increases all margins, and since logistic loss decreases with margin, each loss term decreases.",s:"Slides 77–78"},
+{ch:"5L",t:"Hinge loss, which reaches exactly zero for sufficiently large margins, solves the unbounded logistic regression problem on separable data.",a:true,e:"Hinge loss = max(0, 1−yf(x)) = 0 when yf(x) ≥ 1. The optimal solution can achieve zero loss at finite θ.",s:"Slide 80"},
+{ch:"5L",t:"Adding regularisation λ||θ||² prevents the unbounded optimisation problem in logistic regression on separable data.",a:true,e:"The penalty grows without bound as ||θ||→∞, counteracting the gain from increasing the margin, ensuring a finite minimum.",s:"Slide 80"},
+{ch:"5L",t:"Logistic regression's decision boundary in input space is always nonlinear.",a:false,e:"The boundary f(x)=θᵀx=0 is always a linear (affine) hyperplane.",s:"Slides 71–73"},
+{ch:"5L",t:"A hyperplane in ℝᵖ is a (p−1)-dimensional subspace.",a:true,e:"One linear constraint reduces dimension by one: a hyperplane in ℝᵖ is (p−1)-dimensional.",s:"Slide 73"},
+{ch:"5L",t:"The distance from point x to hyperplane f(x)=θᵀx+θ₀=0 is |f(x)|/||θ||.",a:true,e:"Standard formula for point-to-hyperplane distance. Simplifies to |f(x)| when ||θ||=1.",s:"Slide 74"},
+{ch:"5L",t:"For ||θ||=1, the distance from the origin to the hyperplane θᵀx+θ₀=0 equals |θ₀|.",a:true,e:"Setting x=0: d = |θ₀|/1 = |θ₀|. The intercept term has a direct geometric meaning.",s:"Slide 74"},
+{ch:"5L",t:"The positive halfspace {x: f(x)>0} is the side the normal vector θ points toward.",a:true,e:"θ is the normal vector pointing into the positive halfspace by convention.",s:"Slide 74"},
+{ch:"5L",t:"All model classes in Chapter 5 serve as building blocks for ensemble methods like boosting and bagging.",a:true,e:"The chapter explicitly states these simple model classes are studied both for risk minimisation understanding and as components of stronger ensemble models.",s:"Slide 2"},
+{ch:"5L",t:"Minimising empirical risk unifies all model fitting procedures in Chapter 5.",a:true,e:"OLS, splines, stumps, logistic regression — all minimise an average loss over training data.",s:"Slides 2–3"},
+{ch:"5L",t:"The choice of loss function does not affect which model in the hypothesis space is selected.",a:false,e:"Loss function determines what is estimated: L2→mean, L1→median, pinball→quantile. Different losses select fundamentally different models.",s:"Slides 17, 53"},
+{ch:"5L",t:"Splines combine global smoothness of polynomials with local flexibility of piecewise polynomials.",a:true,e:"Polynomials are globally smooth but inflexible locally. Piecewise polynomials are locally flexible but can be discontinuous. Splines enforce continuity, achieving both.",s:"Slides 25–40"},
+{ch:"5L",t:"Logistic regression creates convex decision regions separated by a hyperplane.",a:true,e:"Halfspaces (regions on each side of a hyperplane) are convex. Logistic regression's linear boundary creates exactly two convex decision regions.",s:"Slides 71–72"},
+{ch:"5L",t:"A decision stump's split condition x_j ≤ t always creates an axis-aligned boundary.",a:true,e:"Thresholding a single feature creates a hyperplane perpendicular to that coordinate axis — always axis-aligned, unlike logistic regression.",s:"Slides 48–50"},
+{ch:"5L",t:"Polynomial degree d=1 has higher bias and lower variance than degree d=10.",a:true,e:"Low capacity (d=1) systematically misses curves (high bias) but is stable across datasets (low variance). High capacity (d=10) fits noise (high variance) but can model complex curves.",s:"Slides 28–29"},
+{ch:"5L",t:"The empirical risk for the univariate linear model with L2 loss is a convex function of (θ₀, θ₁), guaranteeing a global minimum.",a:true,e:"The L2 empirical risk is a sum of squared affine functions in (θ₀,θ₁), which is a convex quadratic. Convex functions have no local minima other than the global one.",s:"Slide 7"},
+{ch:"5L",t:"The correlation coefficient ρ_xy always lies in [−1, 1].",a:true,e:"By the Cauchy-Schwarz inequality, |ρ_xy| ≤ 1. Values ±1 correspond to perfect linear relationships.",s:"Slide 9"},
+{ch:"5L",t:"For a regression task, the empirical risk R_emp(f) always equals the theoretical risk R(f) when evaluated on the training data.",a:false,e:"R_emp is an approximation of R — they are equal only asymptotically as n → ∞. For finite training sets, R_emp is a biased-low estimate of R.",s:"Slide 13"},
+{ch:"5L",t:"In multivariate OLS, the design matrix X has dimensions n × (p+1) when the intercept column is included.",a:true,e:"X has n rows (one per observation) and p+1 columns (one per feature plus the intercept column of ones).",s:"Slide 21"},
+{ch:"5L",t:"A polynomial model of degree d has exactly d+1 free parameters (including the intercept).",a:true,e:"The model θ₀+θ₁x+…+θ_d x^d has coefficients θ₀,θ₁,…,θ_d — that is d+1 parameters.",s:"Slide 25"},
+{ch:"5L",t:"Polynomial regression is a linear model because it is linear in the parameters, even though it is non-linear in x.",a:true,e:"'Linear model' in statistics refers to linearity in the parameters θ, not in the predictors.",s:"Slides 25–26"},
+{ch:"5L",t:"For polynomial regression, a higher degree always reduces training error.",a:true,e:"A higher-degree polynomial can always fit the training data at least as well as a lower-degree one (the lower-degree model is a special case). Training error is non-increasing in d.",s:"Slides 28–29"},
+{ch:"5L",t:"For K intervals and degree d, an unconstrained piecewise polynomial has K(d+1) total parameters.",a:true,e:"Each of the K intervals has an independent degree-d polynomial with d+1 coefficients: K × (d+1) parameters in total.",s:"Slide 30"},
+{ch:"5L",t:"A regression stump can be viewed as a piecewise constant model (d=0) with K=2 intervals.",a:true,e:"A regression stump splits the domain into two intervals and fits a constant (d=0) in each. This is exactly a piecewise constant model with K=2 pieces.",s:"Slides 30–31, 48–50"},
+{ch:"5L",t:"The basis function representation f(x) = Σ_m λ[m] b[m](x) shows that piecewise polynomials belong to the general class of linear basis function models.",a:true,e:"Writing the model as a linear combination of fixed basis functions reveals that piecewise polynomials are linear models in the parameter vector λ, allowing OLS fitting.",s:"Slides 34–35"},
+{ch:"5L",t:"The truncated power basis (x−ζ)ᵈ₊ for a spline of degree d automatically ensures continuity of derivatives up to order d−1 at the knot ζ.",a:true,e:"(x−ζ)ᵈ₊ has zero value and zero derivatives of orders 1 through d−1 at x=ζ, so adding this term to a global polynomial preserves all derivatives up to d−1 at the knot.",s:"Slides 37–40"},
+{ch:"5L",t:"A natural cubic spline with K knots has K basis functions.",a:true,e:"The natural cubic spline basis has 2 global terms (1, x) plus K−2 constructed basis functions, totalling K parameters.",s:"Slide 44"},
+{ch:"5L",t:"Smoothing splines avoid the knot selection problem by using a maximal set of knots (one per data point).",a:true,e:"Instead of choosing knot locations, smoothing splines place a knot at every observed x(i) and use the penalty λ to control how wiggly the resulting function is.",s:"Slides 45–46"},
+{ch:"5L",t:"Larger values of λ in smoothing splines result in a wigglier, more complex fitted function.",a:false,e:"Larger λ imposes a heavier curvature penalty, forcing the function toward linearity (smoother). Smaller λ allows more wiggle.",s:"Slides 45–47"},
+{ch:"5L",t:"A cubic spline is guaranteed to have a continuous second derivative at every interior knot.",a:true,e:"By construction, a cubic spline satisfies C² continuity at every interior knot: values, first derivatives, and second derivatives all match at knots.",s:"Slide 42"},
+{ch:"5L",t:"The risk R(N) of a node under L2 loss, up to a constant, equals the variance of y within that node scaled by node size.",a:true,e:"R(N) = Σ(y−ȳ_N)² = n_N · Var_N(y). The node risk is proportional to the within-node variance.",s:"Slide 52"},
+{ch:"5L",t:"The regression stump hypothesis space is H = {f(x) = c₁·1(x≤t) + c₂·1(x>t) | c₁,c₂ ∈ ℝ, t ∈ X}.",a:true,e:"This is exactly the piecewise constant step function with one split point t and two constant predictions.",s:"Slide 49"},
+{ch:"5L",t:"Unlike linear regression, regression stumps can capture non-monotone relationships between x and y.",a:true,e:"A stump predicts c₁ for x ≤ t and c₂ for x > t with no restriction on the ordering of c₁ and c₂.",s:"Slides 49–51"},
+{ch:"5L",t:"For a binary classification problem (g=2), the Gini impurity simplifies to I(N) = 2π₁(1−π₁) where π₁ is the proportion of class 1.",a:true,e:"With g=2: I = π₁(1−π₁) + π₂(1−π₂) = 2π₁(1−π₁).",s:"Slide 60"},
+{ch:"5L",t:"For a binary classification problem (g=2), the entropy impurity simplifies to I(N) = −π₁ log π₁ − (1−π₁) log(1−π₁), the binary entropy.",a:true,e:"With g=2, π₂=1−π₁, so entropy = −π₁ log π₁ − (1−π₁) log(1−π₁).",s:"Slide 60"},
+{ch:"5L",t:"The optimal class-probability prediction in a decision stump node under the Bernoulli loss is also the empirical class proportion.",a:true,e:"The Bernoulli (log) loss and Brier score both have the empirical class proportions as their optimal constant predictions within a node.",s:"Slides 58, 65"},
+{ch:"5L",t:"Logistic regression with one binary feature x ∈ {0,1} reduces to estimating two independent class proportions.",a:false,e:"Even with a binary feature, logistic regression constrains the log-odds to be linear in x: log(π/(1−π)) = θ₀ + θ₁x. This is not the same as fitting two independent proportions.",s:"Slide 66"},
+{ch:"5L",t:"Logistic regression is trained by maximum likelihood estimation, which is equivalent to minimising the Bernoulli loss.",a:true,e:"The MLE objective for the Bernoulli model maximises Σᵢ [y^(i) log π(x^(i)) + (1−y^(i)) log(1−π(x^(i)))], which is exactly the negative of the Bernoulli empirical risk.",s:"Slide 67"},
+{ch:"5L",t:"The logistic regression decision boundary f(x)=0 in ℝᵖ is a (p−1)-dimensional hyperplane.",a:true,e:"f(x)=θᵀx+θ₀=0 defines a (p−1)-dimensional affine subspace (hyperplane) in ℝᵖ.",s:"Slides 71–73"},
+{ch:"5L",t:"If θ is scaled by 2 in logistic regression, the decision boundary f(x)=0 does not change.",a:true,e:"The boundary f(x)=θᵀx=0 is a scale-invariant condition: (2θ)ᵀx=0 iff θᵀx=0.",s:"Slides 71–72"},
+{ch:"5L",t:"Gradient descent is guaranteed to converge for logistic regression on any dataset.",a:false,e:"On linearly separable data the loss has no finite minimum. Gradient descent will not converge but will keep increasing the parameter norm indefinitely.",s:"Slides 75–79"},
+{ch:"5L",t:"On linearly separable data, the logistic loss Remp approaches 0 as the parameter norm ||θ||→∞.",a:true,e:"Scaling θ by c>1 increases all margins proportionally. Since the logistic loss L(yf)→0 as yf→∞, the empirical risk approaches 0 as c→∞.",s:"Slides 77–79"},
+{ch:"5L",t:"Logistic regression with L2 regularisation λ||θ||² always has a unique finite solution, even on separable data.",a:true,e:"The regularised objective is strictly convex and grows unboundedly as ||θ||→∞, guaranteeing a unique finite global minimum.",s:"Slide 80"},
+{ch:"5L",t:"A hyperplane in ℝ² is a line (1-dimensional subspace), and a hyperplane in ℝ³ is a plane (2-dimensional subspace).",a:true,e:"In ℝᵖ a hyperplane is (p−1)-dimensional: ℝ²→line (dim 1), ℝ³→plane (dim 2).",s:"Slide 73"},
+{ch:"5L",t:"Two parallel hyperplanes in ℝᵖ can be written as {x: θᵀx+a=0} and {x: θᵀx+b=0} with the same normal vector θ.",a:true,e:"Parallel hyperplanes share the same normal direction θ but have different offsets (a≠b). The distance between them is |a−b|/||θ||.",s:"Slide 73"},
+{ch:"5L",t:"In logistic regression, a point x with f(x)=θᵀx=5 is further from the decision boundary than a point with f(x)=2.",a:true,e:"Distance from x to the boundary is |f(x)|/||θ||. For the same θ, |f(x)|=5 > |f(x)|=2, so the first point is further away.",s:"Slide 74"},
+{ch:"5L",t:"The R² evaluated on the training set is equivalent to 1 minus the ratio of the fitted linear model's training risk to the constant model's training risk.",a:true,e:"By definition: R² = 1 − Remp(θ)/Remp(c) = 1 − SSE_LM/SSE_const.",s:"Slides 11–13"},
+{ch:"5L",t:"A regression stump with L2 loss selects the split that maximises the total within-node variance.",a:false,e:"The stump minimises R(N₁)+R(N₂) = Σ_{N₁}(y−ȳ_{N₁})² + Σ_{N₂}(y−ȳ_{N₂})². This MINIMISES total within-node variance.",s:"Slides 51–52"},
+{ch:"5L",t:"Polynomial regression with degree d=n−1 can perfectly interpolate all n training points.",a:true,e:"A polynomial of degree n−1 has n free parameters and can be made to pass through any n points in general position.",s:"Slides 26–29"},
+{ch:"5L",t:"The logistic function σ(z) = 1/(1+e^{−z}) satisfies σ(−z) = 1 − σ(z).",a:true,e:"σ(−z) = 1/(1+e^z) = 1 − 1/(1+e^{−z}) = 1−σ(z). This symmetry means the probability of class 0 at score −z equals the probability of class 1 at score z.",s:"Slide 66"},
+{ch:"5L",t:"In the basis function representation of splines, the parameter vector λ is estimated by OLS since the model is linear in λ.",a:true,e:"f(x) = Σ_m λ[m] b[m](x) is a linear combination of known basis functions. This is exactly the multivariate linear regression model with design matrix B.",s:"Slides 34–40"},
+{ch:"5L",t:"Logistic regression produces the same decision boundary regardless of whether we use the logistic loss or the Bernoulli loss.",a:true,e:"The two formulations are equivalent (same model, same MLE objective, same parameter estimates). They yield identical decision boundaries θᵀx=0.",s:"Slides 66–67"},
+{ch:"5L",t:"Regression trees (deep trees) are built by recursively applying the regression stump splitting criterion.",a:true,e:"At each node a stump split is applied, and then each child can itself be split again. Repeating this recursively produces a full regression tree.",s:"Slide 54"},
+{ch:"5L",t:"A natural cubic spline is less prone to extrapolation artifacts than an unrestricted cubic spline because its second derivative is forced to zero at boundary knots.",a:false,e:"The constraint is that the function is LINEAR (not just zero second derivative) beyond the boundary knots, meaning both the second and third derivatives are zero in the boundary regions.",s:"Slide 44"},
+{ch:"5L",t:"Smoothing splines, unlike regression splines, do not require the user to choose knot locations.",a:true,e:"Smoothing splines use all data points as knots and only require choosing λ (e.g., via CV). Regression splines require explicit knot placement.",s:"Slides 40, 45–47"},
+{ch:"5L",t:"The logistic sigmoid function is monotonically increasing.",a:true,e:"σ'(z) = σ(z)(1−σ(z)) > 0 for all finite z. The sigmoid is strictly increasing everywhere.",s:"Slide 66"},
+{ch:"5L",t:"Piecewise linear splines (d=1, with continuity) have one fewer parameter per knot compared to unconstrained piecewise linear models.",a:true,e:"Each continuity constraint at a knot eliminates one free parameter. An unconstrained piecewise linear model with K pieces has 2K parameters; a linear spline with K−1 interior knots has K+1 parameters.",s:"Slides 36–40"},
+{ch:"5L",t:"The constant baseline model c(x) = ȳ used in R² is the optimal constant predictor under L2 loss.",a:true,e:"Minimising (1/n)Σ(y(i)−c)² w.r.t. c gives c* = ȳ. So the mean is the best constant prediction under L2 loss.",s:"Slides 11–13"},
+{ch:"5L",t:"A spline of degree d=0 with K intervals and continuity constraints is equivalent to a continuous piecewise constant model, which must be a single constant everywhere.",a:true,e:"Continuity forces a degree-0 spline to have equal values at every knot. Since adjacent pieces must agree at their shared knot, the entire function must be a single global constant.",s:"Slides 30–36"},
+{ch:"5L",t:"The logistic loss is an upper bound on the 0-1 (misclassification) loss.",a:true,e:"log(1+exp(−yf(x))) ≥ 1_{yf(x)<0} for all y,f(x). Minimising logistic loss also implicitly minimises an upper bound on misclassification error.",s:"Slide 66"},
+{ch:"5L",t:"The smoothing spline penalised objective has two terms: empirical risk and a roughness penalty, trading off fit and smoothness via λ.",a:true,e:"Rreg = Σ(y(i)−f(x(i)))² + λ∫(f''(t))²dt. The first term measures fit; the second penalises curvature.",s:"Slide 45"},
+{ch:"5L",t:"Gini impurity is maximised when all classes are equally represented in a node.",a:true,e:"Equal proportions π_k=1/g maximise I(N)=Σ_k π_k(1−π_k) = (g−1)/g.",s:"Slide 60"},
+{ch:"5L",t:"Increasing the number of knots K in piecewise polynomial models always improves generalisation.",a:false,e:"More knots = higher capacity = overfitting risk. Optimal K must be chosen via model selection.",s:"Slides 30–33"},
+{ch:"5L",t:"The intercept θ₀ can be encoded as the coefficient of a constant-1 feature, yielding f(x)=θᵀx.",a:true,e:"Standard augmentation trick: x←[1,x₁,…,xₚ]ᵀ and θ←[θ₀,θ₁,…,θₚ]ᵀ so f=θᵀx.",s:"Slide 21"},
+
+/* ──────────────────────── CHAPTER 5 — B-SPLINES (80 questions) ──────────────────────── */
+{ch:"5B",t:"In basic linear regression, the model is expressed as µᵢ = α₀ + α₁·xᵢ, representing a straight-line relationship between x and the expected response.",a:true,e:"The basic linear regression model assumes a linear relationship captured by an intercept α₀ and slope α₁.",s:"Slide 4"},
+{ch:"5B",t:"In the matrix formulation of linear regression, minimizing ‖y − Xα‖² leads to the normal equations XᵀXα̂ = Xᵀy.",a:true,e:"Setting the derivative of the sum of squared residuals with respect to α to zero yields the normal equations XᵀXα̂ = Xᵀy.",s:"Slide 5"},
+{ch:"5B",t:"The least-squares solution α̂ = (XᵀX)⁻¹Xᵀy is obtained by maximizing the residual sum of squares.",a:false,e:"We MINIMIZE the residual sum of squares ‖y − Xα‖². Maximizing it would push the fitted values as far as possible from the data.",s:"Slide 5"},
+{ch:"5B",t:"Adding higher powers of x to the design matrix X allows the regression model to capture curved relationships while keeping the same normal-equation structure.",a:true,e:"Polynomial regression adds columns x², x³,... to X. The model is still linear in the parameters α, so the same least-squares normal equations apply.",s:"Slide 7"},
+{ch:"5B",t:"Higher-degree polynomial basis functions (powers of x) are numerically stable and well-suited for fitting complex curves.",a:false,e:"The slide explicitly warns: 'Higher degree polynomials are numerically unstable!' Powers of x grow very differently in magnitude, leading to ill-conditioned design matrices.",s:"Slide 8"},
+{ch:"5B",t:"A polynomial basis with many terms is a global basis: modifying the fit in one region of x necessarily influences the fit everywhere else.",a:true,e:"Polynomial basis functions (1, x, x², ...) are defined over the entire domain. Adjusting coefficients to fit data better at one end changes the fitted curve globally.",s:"Slide 12"},
+{ch:"5B",t:"One advantage of polynomial regression over B-splines is that high-degree polynomials produce stable, well-conditioned fits without unexpected oscillations.",a:false,e:"High-degree polynomials suffer from numerical instability and produce unexpected wiggles (Runge's phenomenon). This is precisely WHY B-splines were introduced as a superior local alternative.",s:"Slide 12"},
+{ch:"5B",t:"A key insight from the motorcycle data example is that a polynomial of degree as low as 2 is sufficient to capture the complex crash dynamics.",a:false,e:"The slides show that a polynomial of degree 9 was needed for a decent fit to the motorcycle data.",s:"Slide 10"},
+{ch:"5B",t:"High-degree polynomials are sensitive to small data changes: a slight modification in the data can drastically alter the fitted polynomial curve.",a:true,e:"Because polynomial basis functions are global, fitting is highly sensitive. The higher the degree, the more sensitive.",s:"Slide 11"},
+{ch:"5B",t:"The main conclusion from studying polynomial regression on the motorcycle data is: use local instead of global basis functions.",a:true,e:"The slide explicitly states: 'Global polynomials are a dead end ⟹ Use local instead of global functions!'",s:"Slide 12"},
+{ch:"5B",t:"A B-spline basis function of degree d is non-zero only over the interval spanned by d+2 adjacent knots.",a:true,e:"By definition, the j-th B-spline of degree d has local support: it is non-zero only over the interval between d+2 consecutive knots.",s:"Slide 14"},
+{ch:"5B",t:"To define an M-parameter B-spline basis of degree d, exactly M knots are needed.",a:false,e:"You need M + d + 1 knots in total. For example, a cubic (d=3) basis with M=10 requires 10+3+1=14 knots.",s:"Slide 14"},
+{ch:"5B",t:"A d-th degree B-spline can be represented as f(x) = Σⱼ αⱼBⱼ(x; d), where αⱼ are spline coefficients.",a:true,e:"This is the fundamental representation: the fitted curve is a linear combination of B-spline basis functions.",s:"Slide 14"},
+{ch:"5B",t:"The B-spline basis functions are defined recursively, starting from degree-0 indicator functions that are 1 on [tⱼ, tⱼ₊₁) and 0 elsewhere.",a:true,e:"The de Boor recursion builds higher-degree B-splines from degree-0 box functions: B_j(x;0) = 1 if x ∈ [tⱼ, tⱼ₊₁), 0 otherwise.",s:"Slide 15"},
+{ch:"5B",t:"A degree-0 B-spline basis function is a constant (box/indicator) function equal to 1 on one knot interval and 0 everywhere else.",a:true,e:"Bⱼ(x;0) = 1 if x ∈ [tⱼ, tⱼ₊₁), and 0 otherwise. These are the atomic building blocks from which all higher-degree B-splines are recursively constructed.",s:"Slide 15"},
+{ch:"5B",t:"A linear B-spline (degree 1) consists of two piecewise straight-line segments joined at knots with matching function values but potentially different slopes.",a:true,e:"A linear B-spline has two linear pieces joined at the interior knot. The function value is continuous, but the slope has a jump at the knot.",s:"Slide 16"},
+{ch:"5B",t:"A linear B-spline is continuously differentiable (C¹) at its interior knots.",a:false,e:"A linear (degree-1) B-spline only guarantees C⁰ continuity at knots. C¹ continuity requires at least a quadratic (degree-2) spline.",s:"Slide 16"},
+{ch:"5B",t:"A quadratic B-spline (degree 2) consists of three piecewise quadratic segments and is C¹ (matching first derivatives) at its knots.",a:true,e:"A quadratic B-spline has d+1=3 polynomial pieces. At the interior knots it guarantees continuity of both the function value and the first derivative (C¹).",s:"Slide 17"},
+{ch:"5B",t:"A cubic B-spline (degree 3) consists of four polynomial pieces and guarantees C² continuity (matching function value, first and second derivatives) at its knots.",a:true,e:"A cubic B-spline has d+1=4 cubic segments and is C² (twice continuously differentiable) at knots.",s:"Slide 18"},
+{ch:"5B",t:"Cubic B-splines are preferred in practice because they achieve smoothness up to the second derivative at knots, while higher-degree splines offer little additional visual improvement.",a:true,e:"Cubic splines give C² joins — the human eye can detect discontinuities up to the second derivative. Going to degree 4 or higher rarely improves visual smoothness.",s:"Slide 18"},
+{ch:"5B",t:"A quadratic B-spline and a cubic B-spline both have the same number of polynomial pieces (two).",a:false,e:"A degree-d B-spline has d+1 polynomial pieces. A quadratic (d=2) has 3 pieces; a cubic (d=3) has 4 pieces.",s:"Slide 17"},
+{ch:"5B",t:"As the degree of a B-spline increases, its shape becomes more similar to a Gaussian bell curve.",a:true,e:"This is explicitly stated in the slides. Going from linear (tent shape) to quadratic to cubic, the B-spline profile approaches a smooth bell curve.",s:"Slide 18"},
+{ch:"5B",t:"In the B-spline design matrix B, each row contains the evaluations of all M basis functions at one data point xᵢ, and most entries in each row are zero.",a:true,e:"The matrix B has entry Bⱼ(xᵢ) in row i, column j. Because each B-spline is local (non-zero over only d+1 intervals), each row has at most d+1 non-zero entries.",s:"Slide 21"},
+{ch:"5B",t:"In the B-spline design matrix B, every row has exactly M non-zero entries, where M is the number of basis functions.",a:false,e:"Only d+1 basis functions overlap at any given x. So each row has at most d+1 non-zero entries, making the matrix very sparse.",s:"Slide 21"},
+{ch:"5B",t:"The fitted value µᵢ for observation xᵢ is computed as a weighted sum of all M B-splines evaluated at xᵢ, but in practice only d+1 of them contribute non-zero values.",a:true,e:"Since each B-spline is non-zero on only d+2 adjacent knot intervals, for any given xᵢ at most d+1 basis functions are active.",s:"Slide 21"},
+{ch:"5B",t:"The B-spline coefficients αⱼ can be interpreted as the heights (scaling factors) of the corresponding basis functions.",a:true,e:"As noted in the lecture (handwritten annotation), αⱼ = height of the basis functions. A larger αⱼ pulls the fitted curve up in that local region.",s:"Slide 25"},
+{ch:"5B",t:"B-splines are global basis functions: modifying one coefficient αⱼ changes the fitted curve everywhere on the domain.",a:false,e:"B-splines are LOCAL functions. Changing αⱼ only affects the fitted curve in the neighbourhood of the j-th B-spline's support.",s:"Slide 24"},
+{ch:"5B",t:"For equal-spacing, the number of knots determines both the width and the number of B-splines in the basis.",a:true,e:"With equal-spaced knots, more knots mean narrower, more numerous B-splines. The knot spacing directly controls the resolution and count of the basis.",s:"Slide 24"},
+{ch:"5B",t:"Using more B-splines in the basis always guarantees a smoother fitted curve.",a:false,e:"More B-splines allow MORE detail (higher flexibility), but whether the resulting curve is smooth depends on the coefficients α. With no penalty, you get overfitting and wiggly curves.",s:"Slide 23"},
+{ch:"5B",t:"The P-spline approach penalizes the roughness of the spline coefficients α rather than directly penalizing the roughness of the fitted curve.",a:true,e:"The P-spline idea is to control smoothness INDIRECTLY via a penalty on the differences between adjacent coefficients α.",s:"Slide 27"},
+{ch:"5B",t:"With a rich B-spline basis (many basis functions), the fitted curve must always be wiggly.",a:false,e:"Even with many basis functions, a perfectly smooth (e.g. constant or linear) fit is achievable — it depends entirely on the coefficient vector α.",s:"Slide 27"},
+{ch:"5B",t:"The roughness measure R = Σⱼ(αⱼ − αⱼ₋₁)² quantifies how erratically the spline coefficients change from one basis function to the next.",a:true,e:"R is the sum of squared first differences of adjacent coefficients. Large R means big jumps between αⱼ values → wiggly fit.",s:"Slide 29"},
+{ch:"5B",t:"If R = 0 (roughness measure equals zero with a first-order penalty), the fitted curve must be a constant horizontal line.",a:false,e:"R = 0 (first-order penalty) means all differences αⱼ − αⱼ₋₁ = 0, so all coefficients are equal: a constant curve. But with a second-order penalty, R=0 implies a straight line.",s:"Slide 29"},
+{ch:"5B",t:"The difference matrix D of size (M−1)×M encodes first-order differences and satisfies Δα = Dα.",a:true,e:"D is the (M−1)×M matrix with −1 on the main diagonal and +1 on the superdiagonal. It maps the coefficient vector α to the vector of first differences.",s:"Slide 31"},
+{ch:"5B",t:"The roughness R can be written in matrix form as R = ‖Dα‖² = αᵀDᵀDα.",a:true,e:"Since Δα = Dα, we have R = ‖Δα‖² = ‖Dα‖² = αᵀDᵀDα. This quadratic form makes it easy to incorporate into the penalized least-squares objective.",s:"Slide 32"},
+{ch:"5B",t:"In P-spline penalized least squares, the objective function Q = S + λR balances a goodness-of-fit term S against a roughness penalty term R.",a:true,e:"Q = ‖y − Bα‖² + λ‖Dα‖² — the first term S penalizes large residuals (fit), and the second term λR penalizes rough coefficients (smoothness).",s:"Slide 33"},
+{ch:"5B",t:"The smoothing parameter λ must be negative for the penalty to enforce smoothness.",a:false,e:"λ must be strictly positive (λ > 0). A negative λ would REWARD roughness instead of penalizing it.",s:"Slide 33"},
+{ch:"5B",t:"When λ = 0, the penalized least-squares estimator reduces to the ordinary (unpenalized) B-spline least-squares estimator.",a:true,e:"With λ=0, the penalty term disappears and Q = S = ‖y − Bα‖². The solution is the standard B-spline regression.",s:"Slide 33"},
+{ch:"5B",t:"As λ → ∞ with a first-order (d=1) difference penalty, the fitted P-spline curve converges to a horizontal line.",a:true,e:"An infinitely large first-order penalty forces all Δαⱼ ≈ 0, meaning all coefficients are equal. With a constant α vector, Bα becomes a horizontal line.",s:"Slide 35"},
+{ch:"5B",t:"As λ → ∞ with a second-order (d=2) difference penalty, the fitted curve converges to a straight line.",a:true,e:"A second-order penalty forces Δ²αⱼ ≈ 0, meaning coefficients form an arithmetic sequence. The B-spline combination of a linearly-varying α reproduces a straight line.",s:"Slide 43"},
+{ch:"5B",t:"The penalized least-squares solution is α̂ = (BᵀB + λDᵀD)⁻¹Bᵀy, a small modification of the ordinary least-squares formula.",a:true,e:"Compared to the ordinary solution (BᵀB)⁻¹Bᵀy, the penalized version adds λDᵀD to BᵀB — similar in spirit to ridge regression.",s:"Slide 34"},
+{ch:"5B",t:"Increasing λ always decreases the training residuals (improves fit to the data).",a:false,e:"Increasing λ forces smoother α, which reduces roughness R but increases the residual sum S — the fit to the training data gets WORSE.",s:"Slide 35"},
+{ch:"5B",t:"A large λ leads to underfitting, while a small λ leads to overfitting in the P-spline framework.",a:true,e:"Small λ ≈ unpenalized regression → overfitting (too wiggly). Large λ → oversmoothing/underfitting.",s:"Slide 35"},
+{ch:"5B",t:"The penalized least-squares estimator for P-splines is computationally similar to ridge regression.",a:true,e:"Ridge regression adds λI to XᵀX; P-splines add λDᵀD to BᵀB. Both regularize by modifying the Gram matrix.",s:"Slide 34"},
+{ch:"5B",t:"The first-order difference penalty λ‖Dα‖² penalizes large changes between adjacent coefficients, encouraging a constant fit when λ is large.",a:true,e:"First-order differences Δαⱼ = αⱼ − αⱼ₋₁. Penalizing these to zero forces all αⱼ to be equal → constant fit.",s:"Slide 35"},
+{ch:"5B",t:"The second-order difference penalty uses Δ²αⱼ = αⱼ − 2αⱼ₋₁ + αⱼ₋₂, a discrete approximation to the second derivative of α.",a:true,e:"Δ²αⱼ = (αⱼ − αⱼ₋₁) − (αⱼ₋₁ − αⱼ₋₂) = αⱼ − 2αⱼ₋₁ + αⱼ₋₂. This is analogous to the second derivative in continuous calculus.",s:"Slide 36"},
+{ch:"5B",t:"The second-order difference matrix D₂ has M−2 rows and M columns.",a:true,e:"Each row of D₂ involves three consecutive coefficients. Starting from j=3 to j=M gives M−2 rows.",s:"Slide 36"},
+{ch:"5B",t:"The third-order difference Δ³αⱼ = αⱼ − 3αⱼ₋₁ + 3αⱼ₋₂ − αⱼ₋₃ follows binomial coefficients with alternating signs.",a:true,e:"The third-order difference is (1, −3, 3, −1), which are the binomial coefficients from row 3 of Pascal's triangle with alternating signs.",s:"Slide 38"},
+{ch:"5B",t:"Higher-order difference penalties (e.g. d=2, d=3) are commonly preferred over first-order in most practical applications.",a:false,e:"The lecture annotation explicitly states that third-order differences are 'in my experience very rarely used.' First and second-order differences cover most practical cases.",s:"Slide 38"},
+{ch:"5B",t:"With a d-th order difference penalty and λ → ∞, the fitted curve converges to a polynomial of degree d−1.",a:true,e:"Forcing d-th order differences to zero means the coefficient sequence is a polynomial of degree d−1. The B-spline combination then reproduces a polynomial of degree d−1.",s:"Slide 45"},
+{ch:"5B",t:"When data has large gaps in x, unpenalized B-spline regression can fail because some basis functions have no observations in their support, leading to a singular system.",a:true,e:"If no data falls in the support of a basis function, its column in B is all zeros, making BᵀB rank-deficient (singular).",s:"Slide 39"},
+{ch:"5B",t:"Adding a penalty term λ‖Dα‖² resolves the singularity problem caused by gaps in x, because the penalty links adjacent coefficients and propagates information across the gap.",a:true,e:"The penalty forces neighbouring αⱼ to be similar ('hold hands'), so even coefficients in gap regions are constrained by their non-gap neighbours.",s:"Slide 40"},
+{ch:"5B",t:"For extrapolation, B-splines with a difference penalty automatically produce a polynomial of degree matching the order of the penalty outside the data range.",a:true,e:"Beyond the data range, the penalty dominates. For a d-th order penalty, the extrapolated curve behaves as a polynomial of degree d−1.",s:"Slide 42"},
+{ch:"5B",t:"For extrapolation using P-splines, one should keep the domain of x narrow to avoid using basis functions with no data support.",a:false,e:"The correct strategy is the OPPOSITE: 'Just choose the domain of x wide enough' and 'Take a generous number of (cubic) B-splines'. The penalty bridges the gap automatically.",s:"Slide 41"},
+{ch:"5B",t:"With a first-order difference penalty (d=1) and strong smoothing, P-spline extrapolation produces a flat (constant) extension beyond the data range.",a:true,e:"d=1 penalty: large λ forces all coefficient differences ≈ 0 → all αⱼ equal in the extrapolation region → flat (constant) curve.",s:"Slide 42"},
+{ch:"5B",t:"With a second-order difference penalty (d=2) and strong smoothing, P-spline extrapolation extends the curve as a straight line beyond the data.",a:true,e:"d=2 penalty: second differences forced to zero → αⱼ sequence is linear → B-spline combination extrapolates linearly.",s:"Slide 43"},
+{ch:"5B",t:"With a third-order difference penalty (d=3) and strong smoothing, P-spline extrapolation produces a quadratic extension beyond the data.",a:true,e:"d=3: third differences = 0 → α is a quadratic polynomial in j → extrapolation is a quadratic curve.",s:"Slide 44"},
+{ch:"5B",t:"The smoothing parameter λ is typically set automatically by the analyst without any need for data-driven selection.",a:false,e:"The wrap-up slide states 'λ has to be tuned to find the optimal amount of penalization, e.g. via K-fold CV'.",s:"Slide 46"},
+{ch:"5B",t:"K-fold cross-validation is a valid data-driven method for selecting the optimal λ in P-spline regression.",a:true,e:"The lecture's wrap-up slide annotations read: 'λ has to be tuned to find the optimal amount of penalization ⟹ e.g. via K-fold CV.'",s:"Slide 46"},
+{ch:"5B",t:"For very large λ (e.g. λ = 10⁶), the P-spline fit with a d=3 penalty approximates a cubic polynomial trend.",a:false,e:"λ → ∞ with d=3 forces Δ³α ≈ 0, making α quadratic in j, so the fit approaches a QUADRATIC (degree d−1 = 2) polynomial, not cubic.",s:"Slide 45"},
+{ch:"5B",t:"The roughness measure r being small always means the fit to the data (residuals) is also small.",a:false,e:"r (roughness) and s (root mean squared residual) are in tension. Large λ gives small r (smooth α) but large s (poor fit).",s:"Slide 35"},
+{ch:"5B",t:"In a B-spline basis with equal spacing, using 25 B-splines instead of 10 results in narrower individual basis functions.",a:true,e:"More B-splines on the same domain means knots are closer together, so each B-spline spans fewer intervals → narrower support.",s:"Slide 20"},
+{ch:"5B",t:"The sum of all B-spline basis functions at any point x in the interior of the domain equals 1 (partition of unity).",a:true,e:"B-splines form a partition of unity: at any x, the active B-splines sum to 1.",s:"Slide 19"},
+{ch:"5B",t:"B-spline basis functions are always non-negative: Bⱼ(x; d) ≥ 0 for all x.",a:true,e:"By the recursive construction, B-splines are always non-negative.",s:"Slide 15"},
+{ch:"5B",t:"The locality of B-splines means that fitting or prediction at one region of x is independent of observations in distant regions (without a penalty).",a:true,e:"Without a penalty, each αⱼ is influenced only by data points xᵢ that fall in the support of Bⱼ. This is the key locality property.",s:"Slide 24"},
+{ch:"5B",t:"In P-spline regression, using a larger number of B-splines always leads to better predictive performance.",a:false,e:"Without regularization, more B-splines → more flexibility → overfitting. The P-spline idea is to use a rich basis AND a penalty together.",s:"Slide 27"},
+{ch:"5B",t:"A P-spline with 25 cubic B-splines and an appropriate λ can produce a smooth fit, while the same basis with λ=0 would likely overfit.",a:true,e:"This is the central P-spline insight. A large basis with no penalty overfits. Adding a penalty controls roughness and produces smooth, well-fitting curves.",s:"Slide 27"},
+{ch:"5B",t:"The B-spline design matrix B has n rows (observations) and M columns (basis functions).",a:true,e:"Each of the n rows corresponds to one observation xᵢ, and each of the M columns contains one basis function evaluated at all xᵢ.",s:"Slide 21"},
+{ch:"5B",t:"When λ → ∞ with a second-order penalty, all spline coefficients become equal to each other.",a:false,e:"With a FIRST-order penalty, all αⱼ equal each other when λ → ∞. With a SECOND-order penalty, α forms an arithmetic sequence (linear in j) — adjacent αs are equally spaced, not equal.",s:"Slide 36"},
+{ch:"5B",t:"The 'strong smoothing' limiting behaviour of P-splines with order-d penalty produces exactly a polynomial of degree d−1 as λ → ∞.",a:true,e:"Forcing d-th order differences to zero constrains α to be a polynomial of degree d−1 in j. The B-spline basis then reproduces this exact polynomial.",s:"Slide 45"},
+{ch:"5B",t:"P-splines are defined as B-spline regression with a difference penalty on the coefficients, combining a rich local basis with smoothness regularization.",a:true,e:"This is the complete definition of P-splines (Eilers & Marx, 1996): use a generous B-spline basis matrix B and minimise Q = ‖y − Bα‖² + λ‖Dα‖².",s:"Slide 46"},
+{ch:"5B",t:"B-splines fix the problem of polynomial regression by replacing global basis functions with local ones that are non-zero only in a limited region of x.",a:true,e:"This is the core motivation. Global polynomials are problematic because any change in one region affects all others. B-splines have compact support.",s:"Slide 13"},
+{ch:"5B",t:"The regression model µ = Bα for B-splines is estimated using the same normal-equation machinery as ordinary linear regression, just with a different design matrix.",a:true,e:"The model is linear in α: µ = Bα. The B-spline basis matrix B plays exactly the role of the design matrix X in ordinary regression.",s:"Slide 21"},
+{ch:"5B",t:"Orthogonal polynomials can partially address the numerical instability of high-degree polynomial regression.",a:true,e:"The slides note 'use orthogonal polynomials' as a remedy for the bad numerical condition of high-degree polynomial basis.",s:"Slide 10"},
+{ch:"5B",t:"P-splines can handle both interpolation (filling gaps within the data range) and extrapolation (predicting beyond the data range) using the same penalty framework.",a:true,e:"The penalty links adjacent α values, bridging gaps within the data range and extending the trend beyond it.",s:"Slide 41"},
+{ch:"5B",t:"The motorcycle helmet impact data is an example where simple linear regression provides a sufficient fit.",a:false,e:"The motorcycle data shows a highly non-linear pattern. A straight line gives a completely flat fit, missing the entire crash dynamics.",s:"Slide 9"},
+{ch:"5B",t:"In the P-spline framework, the matrix DᵀD acts as a penalty matrix that shrinks differences between adjacent coefficients.",a:true,e:"DᵀD is the positive semi-definite penalty matrix. Adding λDᵀD to BᵀB in the normal equations penalises roughness in α.",s:"Slide 32"},
+{ch:"5B",t:"The P-spline objective Q = ‖y − Bα‖² + λ‖Dα‖² is minimised by setting its gradient w.r.t. α to zero, yielding (BᵀB + λDᵀD)α̂ = Bᵀy.",a:true,e:"Differentiating Q: ∂Q/∂α = −2Bᵀy + 2(BᵀB + λDᵀD)α = 0 ⟹ (BᵀB + λDᵀD)α̂ = Bᵀy.",s:"Slide 34"},
+{ch:"5B",t:"The difference matrix D in P-splines has M rows and M−1 columns (for first-order differences).",a:false,e:"It's the other way around: D has M−1 ROWS and M COLUMNS. Each row computes one first difference αⱼ − αⱼ₋₁.",s:"Slide 31"},
+{ch:"5B",t:"The P-spline penalty on second-order differences is equivalent to approximating a penalty on the squared second derivative of the fitted curve, connecting it to natural cubic spline smoothing.",a:true,e:"Penalising ‖D₂α‖² approximates ∫(f''(x))² dx — the classic smoothing spline criterion.",s:"Slide 36"},
+{ch:"5B",t:"In the B-spline framework, scalar coefficients αⱼ associated with basis functions that lie in a gap region of x (no data) are unidentifiable without a penalty.",a:true,e:"With no data in the support of Bⱼ, the corresponding column of B is zero. BᵀB is rank-deficient, so αⱼ cannot be estimated.",s:"Slide 39"}
 ];
 
-const select = document.getElementById('quizSelect');
-const list = document.getElementById('quizList');
-const frame = document.getElementById('quizFrame');
-const openBtn = document.getElementById('openBtn');
-const newTabBtn = document.getElementById('newTabBtn');
+/* ═══════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════ */
+let activeFilter = "all";
+let displayedQ = [];
+let answered = {};    // idx → bool (user answer)
+let scoreMap = {};    // idx → +1 or -1
+let totalScore = 0;
+let totalCorrect = 0;
+let totalWrong = 0;
 
-function renderQuizList() {
-  quizzes.forEach((quiz, index) => {
-    const card = document.createElement('div');
-    card.className = 'quiz-card';
-    card.innerHTML = `
-      <div>
-        <strong>${quiz.label}</strong>
-        <span>${quiz.file}</span>
-      </div>
-      <div>
-        <button class="btn" type="button" data-file="${quiz.file}">View</button>
-      </div>`;
-    card.querySelector('button').addEventListener('click', () => selectQuiz(quiz.file));
-    list.appendChild(card);
+function getFiltered() {
+  return activeFilter === "all"
+    ? ALL_Q
+    : ALL_Q.filter(q => q.ch === activeFilter);
+}
 
-    const option = document.createElement('option');
-    option.value = quiz.file;
-    option.textContent = quiz.label;
-    if (index === 0) option.selected = true;
-    select.appendChild(option);
+function setFilter(ch) {
+  activeFilter = ch;
+  document.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.ch === ch);
   });
+  rebuildDisplay();
 }
 
-function selectQuiz(file) {
-  frame.src = file;
-  select.value = file;
+function rebuildDisplay() {
+  // recompute displayedQ order (keep shuffle state if shuffled)
+  const base = getFiltered();
+  displayedQ = base.map(q => ALL_Q.indexOf(q));
+  render();
 }
 
-openBtn.addEventListener('click', () => {
-  selectQuiz(select.value);
-});
+function doShuffle() {
+  const base = getFiltered();
+  const idxs = base.map(q => ALL_Q.indexOf(q));
+  for (let i = idxs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
+  }
+  displayedQ = idxs;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-newTabBtn.addEventListener('click', () => {
-  window.open(select.value, '_blank');
-});
+function doReset() {
+  answered = {};
+  scoreMap = {};
+  totalScore = 0;
+  totalCorrect = 0;
+  totalWrong = 0;
+  activeFilter = "all";
+  document.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.ch === 'all');
+  });
+  displayedQ = ALL_Q.map((_, i) => i);
+  render();
+  updateStats();
+  document.getElementById('result-panel').classList.remove('vis');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-renderQuizList();
+function render() {
+  const container = document.getElementById('qContainer');
+  container.innerHTML = '';
+
+  if (displayedQ.length === 0) {
+    container.innerHTML = '<div class="empty">No questions for this filter.</div>';
+    updateStats();
+    updateProgress();
+    return;
+  }
+
+  displayedQ.forEach((globalIdx, displayPos) => {
+    const q = ALL_Q[globalIdx];
+    const ua = answered[globalIdx];
+    const revealed = ua !== undefined;
+
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = 'card-' + globalIdx;
+
+    card.innerHTML = `
+      <div class="q-head">
+        <span class="q-num">Q${displayPos + 1}</span>
+        <span class="q-text">${q.t}</span>
+      </div>
+      <div class="q-btns">
+        <button class="opt t" id="yes-${globalIdx}" onclick="answer(${globalIdx},true)">✓ True</button>
+        <button class="opt f" id="no-${globalIdx}" onclick="answer(${globalIdx},false)">✗ False</button>
+      </div>
+      <div class="exp" id="exp-${globalIdx}">
+        <div class="exp-inner" id="exp-inner-${globalIdx}">
+          <div class="verdict" id="verdict-${globalIdx}"></div>
+          <div id="exp-text-${globalIdx}"></div>
+          <span class="slide-tag" id="slide-tag-${globalIdx}"></span>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+
+    if (revealed) {
+      applyAnswerStyles(globalIdx, ua);
+    }
+  });
+
+  updateProgress();
+  updateStats();
+}
+
+function answer(idx, userAns) {
+  if (answered[idx] !== undefined) return;
+  answered[idx] = userAns;
+  const q = ALL_Q[idx];
+  const correct = userAns === q.a;
+
+  if (correct) {
+    totalScore++;
+    totalCorrect++;
+    scoreMap[idx] = 1;
+  } else {
+    totalScore--;
+    totalWrong++;
+    scoreMap[idx] = -1;
+  }
+
+  applyAnswerStyles(idx, userAns);
+  updateStats();
+  updateProgress();
+}
+
+function applyAnswerStyles(idx, userAns) {
+  const q = ALL_Q[idx];
+  const correct = userAns === q.a;
+  const yesBtn = document.getElementById('yes-' + idx);
+  const noBtn  = document.getElementById('no-' + idx);
+  if (!yesBtn) return;
+
+  yesBtn.disabled = true;
+  noBtn.disabled  = true;
+
+  if (correct) {
+    if (userAns) yesBtn.className = 'opt t ok';
+    else         noBtn.className  = 'opt f ok';
+  } else {
+    if (userAns) {
+      yesBtn.className = 'opt t bad';
+      noBtn.className  = 'opt f show-ok';
+    } else {
+      noBtn.className  = 'opt f bad';
+      yesBtn.className = 'opt t show-ok';
+    }
+  }
+
+  const expDiv  = document.getElementById('exp-' + idx);
+  const inner   = document.getElementById('exp-inner-' + idx);
+  const verdict = document.getElementById('verdict-' + idx);
+  const expText = document.getElementById('exp-text-' + idx);
+  const slideTag= document.getElementById('slide-tag-' + idx);
+
+  inner.className   = 'exp-inner ' + (correct ? 'ok' : 'bad');
+  verdict.textContent = correct ? '✓ Correct' : '✗ Incorrect';
+  expText.textContent = q.e;
+  slideTag.textContent = '📄 ' + q.s;
+  expDiv.classList.add('vis');
+}
+
+function updateStats() {
+  const answeredCount = Object.keys(answered).length;
+  document.getElementById('sCorr').textContent = totalCorrect;
+  document.getElementById('sWrong').textContent = totalWrong;
+  document.getElementById('sLeft').textContent  = displayedQ.length - displayedQ.filter(i => answered[i] !== undefined).length;
+  const pct = answeredCount > 0 ? Math.round(100 * totalCorrect / answeredCount) : null;
+  const pctEl = document.getElementById('sPct');
+  pctEl.textContent = pct !== null ? pct + '%' : '—';
+  pctEl.style.color = pct === null ? 'var(--muted)' : pct >= 70 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+  document.getElementById('scoreBadge').textContent = 'Score: ' + totalScore;
+}
+
+function updateProgress() {
+  const total = displayedQ.length;
+  const done  = displayedQ.filter(i => answered[i] !== undefined).length;
+  const pct   = total > 0 ? (done / total) * 100 : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLabel').textContent = done + ' / ' + total;
+}
+
+function showResults() {
+  const total = displayedQ.length;
+  const done  = displayedQ.filter(i => answered[i] !== undefined).length;
+  const skipped = total - done;
+
+  document.getElementById('finalScore').textContent = totalScore;
+  document.getElementById('rCorr').textContent = totalCorrect;
+  document.getElementById('rWrong').textContent = totalWrong;
+  document.getElementById('rSkip').textContent  = skipped;
+
+  const panel = document.getElementById('result-panel');
+  panel.classList.add('vis');
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* Init */
+displayedQ = ALL_Q.map((_, i) => i);
+render();
 </script>
 </body>
 </html>
