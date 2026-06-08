@@ -3,996 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GLM Quiz – True/False</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>ASL Quiz Hub</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --card: #1e2333;
-    --border: #2a3050;
-    --accent: #5b8dee;
-    --accent2: #e85d75;
-    --true-col: #3dd68c;
-    --false-col: #e85d75;
-    --text: #dde3f5;
-    --muted: #7a87a8;
-    --highlight: #2a3a6a;
+    color-scheme: light;
+    font-family: Inter, system-ui, sans-serif;
+    background: #f4f6fb;
+    color: #111827;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif;
-    min-height: 100vh;
-    padding: 0 0 60px 0;
-  }
-
-  /* ── HEADER ── */
-  header {
-    background: linear-gradient(135deg, #131828 0%, #1a2240 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 8px 10px 6px;
-    position: sticky; top: 0; z-index: 100;
-    backdrop-filter: blur(10px);
-    max-height: 10vh;
-    min-height: 0;
-    overflow: hidden;
-  }
-  header h1 {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .scorebar {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  }
-  .stat {
-    display: flex; flex-direction: column; align-items: center;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px 10px;
-    min-width: 50px;
-  }
-  .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; }
-  .stat-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 1px; }
-  .stat.answered .stat-val { color: var(--accent); }
-  .stat.correct .stat-val { color: var(--true-col); }
-  .stat.wrong .stat-val { color: var(--false-col); }
-  .stat.score-val .stat-val { color: #f0c94a; }
-
-  .header-btns { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; align-items: center; }
-  .btn {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text);
-    transition: all 0.15s;
-  }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn.primary:hover { opacity: 0.85; }
-  .btn.danger { border-color: var(--false-col); color: var(--false-col); }
-  .btn.danger:hover { background: var(--false-col); color: #fff; }
-
-  /* ── FILTER TABS ── */
-  .filter-bar {
-    padding: 14px 32px;
-    display: flex; gap: 8px; flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .filter-btn {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 5px 13px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .filter-btn:hover, .filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  /* ── MAIN ── */
-  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
-
-  /* ── SECTION HEADING ── */
-  .section-heading {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    border-left: 3px solid var(--accent);
-    padding-left: 10px;
-    margin: 36px 0 16px;
-  }
-  .section-heading:first-child { margin-top: 0; }
-
-  /* ── QUESTION CARD ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 14px;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .card.correct-answer { border-color: var(--true-col); border-width: 2px; }
-  .card.wrong-answer   { border-color: var(--false-col); border-width: 2px; }
-
-  .card-top {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 16px 18px 14px;
-  }
-  .q-num {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 3px 8px;
-    white-space: nowrap;
-    margin-top: 2px;
-    flex-shrink: 0;
-  }
-  .statement {
-    font-size: 0.93rem;
-    line-height: 1.6;
-    color: var(--text);
-    flex: 1;
-  }
-
-  /* ── ANSWER BUTTONS ── */
-  .answer-row {
-    display: flex; gap: 6px;
-    padding: 0 14px 12px;
-    flex-wrap: nowrap;
-  }
-  .ans-btn {
-    flex: 1;
-    min-width: 0;
-    padding: 7px 0;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .ans-btn:hover { border-color: var(--text); color: var(--text); }
-  .ans-btn.selected-true  { background: rgba(61,214,140,0.12); border-color: var(--true-col); color: var(--true-col); }
-  .ans-btn.selected-false { background: rgba(232,93,117,0.12); border-color: var(--false-col); color: var(--false-col); }
-
-  /* ── REVEAL PANEL ── */
-  .reveal-btn {
-    display: block;
-    width: calc(100% - 36px);
-    margin: 0 18px 14px;
-    padding: 8px;
-    background: transparent;
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .answer-panel {
-    display: none;
-    border-top: 1px solid var(--border);
-    padding: 14px 18px;
-    background: rgba(255,255,255,0.02);
-  }
-  .answer-panel.visible { display: block; }
-
-  .answer-badge {
-    display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    padding: 3px 12px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-  }
-  .answer-badge.true  { background: rgba(61,214,140,0.15); color: var(--true-col); border: 1px solid var(--true-col); }
-  .answer-badge.false { background: rgba(232,93,117,0.15); color: var(--false-col); border: 1px solid var(--false-col); }
-
-  .result-indicator {
-    display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    margin-left: 10px;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-  .result-indicator.correct { background: rgba(61,214,140,0.1); color: var(--true-col); }
-  .result-indicator.wrong   { background: rgba(232,93,117,0.1); color: var(--false-col); }
-
-  .slide-ref {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--accent);
-    margin-bottom: 8px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .slide-ref::before { content: "📍"; }
-
-  .explanation {
-    font-size: 0.85rem;
-    line-height: 1.65;
-    color: #a8b4d0;
-  }
-
-  /* ── PROGRESS BAR ── */
-  .progress-wrap {
-    height: 3px;
-    background: var(--border);
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--true-col));
-    transition: width 0.3s;
-  }
-
-  /* ── RESULT MODAL ── */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75);
-    z-index: 300;
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 36px 40px;
-    max-width: 440px;
-    width: 90%;
-    text-align: center;
-  }
-  .modal h2 {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 1.1rem;
-    letter-spacing: 0.08em;
-    margin-bottom: 20px;
-    color: var(--accent);
-  }
-  .big-score {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: #f0c94a;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 22px; }
-  .pass-badge {
-    display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 6px 20px;
-    border-radius: 30px;
-    margin-bottom: 24px;
-  }
-  .pass-badge.pass { background: rgba(61,214,140,0.15); color: var(--true-col); border: 1px solid var(--true-col); }
-  .pass-badge.fail { background: rgba(232,93,117,0.15); color: var(--false-col); border: 1px solid var(--false-col); }
-
-  /* unanswered warning */
-  .unanswered-note { color: var(--muted); font-size: 0.78rem; margin-top: 8px; }
-
-  @media (max-width: 600px) {
-    header { padding: 8px 8px 6px; max-height: 10vh; }
-    header h1 { font-size: 0.82rem; margin-bottom: 3px; }
-    .scorebar { gap: 6px; }
-    .stat { padding: 3px 8px; min-width: 45px; }
-    .stat-val { font-size: 0.95rem; }
-    .stat-lbl { font-size: 0.55rem; }
-    .btn { padding: 4px 8px; font-size: 0.62rem; }
-    main { padding: 16px 8px; }
-    .filter-bar { padding: 8px 10px; }
-    .answer-row { gap: 5px; padding: 0 10px 10px; }
-    .ans-btn { font-size: 0.72rem; padding: 6px 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #eef2ff; }
+  header { background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%); border-bottom: 1px solid #c7d2fe; padding: 28px 24px; }
+  .hero { max-width: 1024px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  h1 { margin: 0; font-size: clamp(1.9rem, 2.5vw, 2.7rem); letter-spacing: -0.04em; color: #111827; }
+  p.lead { margin: 0; max-width: 770px; line-height: 1.7; font-size: 1rem; color: #475569; }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+  button, select { font: inherit; border-radius: 999px; border: 1px solid transparent; padding: 12px 18px; cursor: pointer; transition: all 0.15s ease; }
+  button { background: #4338ca; color: white; border-color: #4338ca; }
+  button:hover { background: #312e81; }
+  select { background: white; color: #111827; border-color: #c7d2fe; box-shadow: 0 10px 30px rgba(15,23,42,.08); }
+  .note { font-size: 0.92rem; color: #475569; }
+  main { max-width: 1100px; margin: 28px auto 32px; padding: 0 20px; }
+  .panel { display: grid; gap: 20px; }
+  .quiz-list { display: grid; gap: 14px; }
+  .quiz-card { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 22px; background: white; border-radius: 16px; border: 1px solid #dbeafe; box-shadow: 0 10px 25px rgba(15,23,42,0.06); }
+  .quiz-card strong { display: block; font-size: 1rem; color: #111827; }
+  .quiz-card span { display: block; color: #4b5563; font-size: 0.94rem; }
+  .quiz-card button { min-width: 118px; }
+  .viewer { position: relative; min-height: 720px; border-radius: 18px; overflow: hidden; border: 1px solid #c7d2fe; background: white; }
+  .viewer::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top left, rgba(99,102,241,.12), transparent 28%), radial-gradient(circle at bottom right, rgba(59,130,246,.12), transparent 20%); pointer-events: none; }
+  iframe { width: 100%; height: 800px; border: 0; display: block; background: white; }
+  .footer { max-width: 1024px; margin: 0 auto; padding: 0 20px; font-size: 0.92rem; color: #6b7280; line-height: 1.7; }
+  .footer a { color: #4338ca; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+  @media (max-width: 720px) {
+    .quiz-card { flex-direction: column; align-items: flex-start; }
+    .viewer { min-height: 520px; }
+    iframe { height: 580px; }
   }
 </style>
 </head>
 <body>
-
 <header>
-  <h1>GLM Quiz — True / False Practice</h1>
-  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:14px;">
-    <div class="scorebar">
-      <div class="stat answered"><span class="stat-val" id="s-answered">0</span><span class="stat-lbl">Answered</span></div>
-      <div class="stat" style="color:var(--muted)"><span class="stat-val" id="s-total">149</span><span class="stat-lbl">Total</span></div>
-      <div class="stat correct"><span class="stat-val" id="s-correct">0</span><span class="stat-lbl">Correct</span></div>
-      <div class="stat wrong"><span class="stat-val" id="s-wrong">0</span><span class="stat-lbl">Wrong</span></div>
-      <div class="stat score-val"><span class="stat-val" id="s-score">0</span><span class="stat-lbl">Score</span></div>
+  <div class="hero">
+    <div>
+      <h1>ASL Quiz Hub</h1>
+      <p class="lead">One page to access every quiz in this folder. Choose a quiz below to open it inside the main interface, or use the dropdown to jump directly to any quiz.</p>
     </div>
-    <div class="header-btns">
-      <button class="btn" onclick="revealAll()">Reveal All</button>
-      <button class="btn" onclick="showResults()">Results</button>
-      <button class="btn danger" onclick="resetAll()">Reset</button>
+    <div class="controls">
+      <select id="quizSelect" aria-label="Select quiz"></select>
+      <button type="button" id="openBtn">Open quiz</button>
+      <button type="button" id="newTabBtn">Open in new tab</button>
     </div>
+    <div class="note">The quiz content is loaded from the original HTML files in the folder, but you can access them from one single entry point.</div>
   </div>
 </header>
-
-<div class="filter-bar" id="filterBar"></div>
-
-<main id="main"></main>
-
-<div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h2>Your Results</h2>
-    <div class="big-score" id="modalScore">0</div>
-    <p id="modalDetail"></p>
-    <div class="pass-badge" id="modalBadge"></div>
-    <p class="unanswered-note" id="modalUnanswered"></p>
-    <br>
-    <button class="btn primary" onclick="document.getElementById('modal').classList.remove('open')">Close</button>
+<main>
+  <div class="panel">
+    <div class="quiz-list" id="quizList"></div>
+    <div class="viewer">
+      <iframe id="quizFrame" title="ASL Quiz Viewer" src="1supervised.html"></iframe>
+    </div>
   </div>
+</main>
+<div class="footer">
+  <p>Available quizzes: <strong>1supervised, 2_classification, 2univariate, asl_quiz, risk_minimization_quiz, risk_minimization_2, univariate</strong>.</p>
+  <p>If you want, I can also merge them into a single uniform quiz UI inside this page instead of using embedded files.</p>
 </div>
-
 <script>
-const questions = [
-  { num:1,  task:"Task 1: Basic Concepts of Regression", answer:"TRUE",  slide:"Basic Concepts – Slide 3",        statement:"In regression analysis, the dependent variable y is also referred to as the response variable or outcome.", explanation:"Slide 3 lists the synonyms for y: outcome, target variable, response variable, and dependent variable." },
-  { num:2,  answer:"FALSE", slide:"Basic Concepts – Slide 28",       statement:"In the classical linear regression model, the error terms εᵢ are assumed to have a non-zero mean.", explanation:"Slide 28 lists Assumption 1: E(εᵢ) = 0 (zero mean errors)." },
-  { num:3,  answer:"TRUE",  slide:"Basic Concepts – Slide 28",       statement:"The classical linear regression model assumes that the error terms εᵢ are uncorrelated with each other.", explanation:"Slide 28 lists Assumption 3: Cov(εᵢ, εⱼ) = 0, meaning errors are uncorrelated." },
-  { num:4,  answer:"FALSE", slide:"Basic Concepts – Slide 28",       statement:"In the classical linear regression model, all four assumptions (zero mean, constant variance, zero covariance, normality) are strictly required for parameter estimation via OLS.", explanation:"Slide 28 notes that Assumption 4 (normality) is needed for testing/inference only, not for OLS estimation itself." },
-  { num:5,  answer:"TRUE",  slide:"Basic Concepts – Slides 13, 15",  statement:"In the linear model E(y|x) = β₀ + β₁x₁ + … + βₚxₚ, the coefficient β₁ represents the expected change in y when x₁ increases by one unit, holding all other variables fixed.", explanation:"Slide 13 shows β₁ as the per-unit change in y; Slide 15 explicitly states βⱼ is interpretable given other variables are fixed (adjustment)." },
-  { num:6,  answer:"FALSE", slide:"Basic Concepts – Slide 15",       statement:"Marginal correlation and conditional correlation between two variables are always equal in a multiple regression setting.", explanation:"Slide 15 explicitly states: 'marginal correlation ≠ conditional correlation.'" },
-  { num:7,  answer:"TRUE",  slide:"Basic Concepts – Slide 29",       statement:"In the alternative representation of the classical linear regression model, the random component is yᵢ | xᵢ ~ N(µᵢ, σ²) and the systematic component is µᵢ = xᵢᵀβ.", explanation:"Slide 29 presents the alternative decomposition: random component yᵢ|xᵢ ~ N(µᵢ,σ²) and systematic component µᵢ = xᵢᵀβ." },
-  { num:8,  answer:"FALSE", slide:"Basic Concepts – Slide 26",       statement:"The linear predictor η = x⊤β can only include metrical (continuous) covariates.", explanation:"Slide 26 states variables can be metrical, encoded, or both, and may include polynomial terms such as age²." },
-
-  { num:9,  task:"Task 2: Encoding of Covariates", answer:"FALSE", slide:"Basic Concepts – Slide 19", statement:"In dummy (0/1) coding with k categories, all k indicator variables can be included in the model simultaneously without any restriction.", explanation:"Slide 19 identifies this as a problem (perfect multicollinearity). Slide 20 resolves it by setting one reference category to 0." },
-  { num:10, answer:"TRUE",  slide:"Basic Concepts – Slide 20",       statement:"In dummy coding, the reference category is the one whose coefficient is set to zero, and all other coefficients represent differences relative to that reference.", explanation:"Slide 20: 'Set category k to 0 → βⱼ₍ₖ₎ = 0 → reference category.' All other coefficients represent deviations from the reference." },
-  { num:11, answer:"TRUE",  slide:"Basic Concepts – Slide 23",       statement:"In effect encoding, the constraint applied is that all category-specific coefficients sum to zero (Σᵢ βⱼ₍ᵢ₎ = 0).", explanation:"Slide 23 states the restriction for effect encoding: Σᵢ₌₁ᵏ βⱼ₍ᵢ₎ = 0, making β₀ interpretable as the grand mean." },
-  { num:12, answer:"FALSE", slide:"Basic Concepts – Slide 23",       statement:"In effect encoding, the intercept β₀ represents the expected value for the reference category.", explanation:"Slide 23 shows that under effect encoding β₀ is the overall (grand) mean across all categories — not the reference category mean." },
-  { num:13, answer:"TRUE",  slide:"Basic Concepts – Slide 16",       statement:"A binary covariate xⱼ ∈ {0,1} can be included directly in the linear model without special encoding.", explanation:"Slide 16 covers binary covariates: xⱼ is already 0/1 and enters directly; β₁ gives the expected difference between the two groups." },
-
-  { num:14, task:"Task 3: Models for Binary Outcome", answer:"FALSE", slide:"Binary Outcome – Slides 3, 4", statement:"Applying a standard linear regression model directly to a binary response y ∈ {0,1} is unproblematic because probabilities are always between 0 and 1.", explanation:"Slide 3 raises the question; Slide 4 lists reasons against: predicted values can fall outside [0,1] and the variance is non-constant (Bernoulli)." },
-  { num:15, answer:"TRUE",  slide:"Binary Outcome – Slide 5",        statement:"The binary regression model can be motivated via Bayes' theorem by assuming x | y = i ~ N(µᵢ, Σ).", explanation:"Slide 5 sets up the Bayes motivation with the assumption x|y=i ~ N(µᵢ,Σ), from which the logistic form is derived." },
-  { num:16, answer:"TRUE",  slide:"Binary Outcome – Slide 9",        statement:"In the latent variable motivation of binary regression, the unobservable continuous variable ỹ is called a latent variable.", explanation:"Slide 9 introduces the latent variable: 'actually continuous ỹ in the background... Not observable or unknown: latent.'" },
-  { num:17, answer:"TRUE",  slide:"Binary Outcome – Slide 12",       statement:"In the latent variable framework, the observed binary outcome is defined as yᵢ = 1 if and only if the latent variable ỹᵢ ≥ ϑ.", explanation:"Slide 12 states exactly: yᵢ = 1 ⟺ ỹᵢ ≥ ϑ." },
-  { num:18, answer:"FALSE", slide:"Binary Outcome – Slide 14",       statement:"Choosing F(·) to be the Gaussian (normal) CDF in πᵢ(xᵢ) = F(β₀ + xᵢ⊤β) yields the logit model.", explanation:"Slide 14: F(·) = logistic CDF → logit model; F(·) = Gaussian CDF → probit model (only rarely used)." },
-  { num:19, answer:"TRUE",  slide:"Binary Outcome – Slide 14",       statement:"The logistic CDF is the most frequently used choice for F(·) in binary regression models.", explanation:"Slide 14 annotates the logistic choice as 'most frequently used'; probit is 'only rarely used'; Gumbel/Gompertz are 'very rarely used.'" },
-
-  { num:20, task:"Task 4: Logistic Regression", answer:"TRUE", slide:"Logistic Regression – Slide 3", statement:"The three representations of logistic regression — probability form, odds form, and log-odds form — are mathematically equivalent.", explanation:"Slide 3 presents all three as 'Equivalent representations.'" },
-  { num:21, answer:"TRUE",  slide:"Logistic Regression – Slide 4",   statement:"The logistic function F(η) = exp(η)/(1+exp(η)) is a valid cumulative distribution function (CDF).", explanation:"Slide 4 states: 'F(η) is a distribution function' and lists the CDF properties." },
-  { num:22, answer:"TRUE",  slide:"Logistic Regression – Slide 5",   statement:"The logistic function satisfies the point-symmetry property F(0) = 0.5 and F(η) = 1 − F(−η).", explanation:"Slide 5: 'F(·) is point-symmetric: F(0) = 0.5 and F(η) = 1 − F(−η).'" },
-  { num:23, answer:"FALSE", slide:"Logistic Regression – Slide 7",   statement:"In logistic regression, a positive coefficient β₁ > 0 implies that the probability P(y=1|x) decreases as x₁ increases.", explanation:"Slide 7: β₁ > 0 means the probability increases with x₁; only β₁ < 0 implies a decrease." },
-  { num:24, answer:"TRUE",  slide:"Logistic Regression – Slide 10",  statement:"When x₁ increases by 1 unit, the odds π(x)/(1−π(x)) are multiplied by a factor of exp(β₁).", explanation:"Slide 10 derives: increasing x₁ by 1 multiplies the odds by exp(β₁) — the odds ratio interpretation." },
-  { num:25, answer:"TRUE",  slide:"Logistic Regression – Slides 7, 10", statement:"If exp(β₁) = 1, then the covariate x₁ has no effect on the odds of the outcome.", explanation:"Slide 7: β₁ = 0 → no effect; Slide 10: multiplying odds by exp(0) = 1 leaves them unchanged." },
-  { num:26, answer:"FALSE", slide:"Logistic Regression – Slide 12",  statement:"Centering and rescaling of covariates in logistic regression changes the predicted probabilities.", explanation:"Slide 12: Only the coefficient scale changes; the linear predictor and predicted probabilities remain identical." },
-
-  { num:27, task:"Task 5: Logistic Regression with Categorical Covariates", answer:"TRUE", slide:"Logistic Regression Categorical – Slide 3", statement:"When both x and y are binary, the relationship can be summarized in a 2×2 contingency table.", explanation:"Slide 3: 'x binary, y binary → 2×2 contingency table.'" },
-  { num:28, answer:"TRUE",  slide:"Logistic Regression Categorical – Slides 7, 8", statement:"The odds ratio in a logit model with a binary covariate is given by exp(β₁).", explanation:"Slides 7–8 derive exp(β₁) as the odds ratio; shown numerically with exp(β̂₁) = 1.77." },
-  { num:29, answer:"FALSE", slide:"Logistic Regression Categorical – Slide 10", statement:"In the South African heart disease dataset of binary outcomes for heart disease and binary covariates tobacco, alcohol, and family history, the fitted coefficient for alcohol is not statistically significant at the 5% level.", explanation:"Slide 10: alcohol p-value = 0.792 ≫ 0.05 → not significant. Tobacco and famhistPresent both have p < 0.001." },
-  { num:30, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 10", statement:"In the South African heart disease dataset, the fitted logistic model estimate β̂_famhistPresent = 1.150282 gives an odds ratio exp(β̂_famhistPresent) greater than 1, indicating higher odds of heart disease when family history is present.", explanation:"Slide 10: β̂_famhistPresent = 1.150282 > 0, so exp(1.150282) > 1 — family history increases odds of heart disease." },
-  { num:31, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 12", statement:"In a logit model with a multi-categorical covariate encoded with dummy coding, the intercept β₀ represents the log-odds for the reference category.", explanation:"Slide 12: with all dummies = 0 (reference category), the log-odds = β₀." },
-  { num:32, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 17", statement:"In a logit model with interactions between binary covariates G and A, exp(β_GA) is the interaction odds ratio.", explanation:"Slide 17 interprets exp(β_GA): it quantifies how the gender odds ratio differs between age groups." },
-  { num:33, answer:"FALSE", slide:"Logistic Regression Categorical – Slide 16", statement:"A model without an interaction term is always sufficient to capture the relationship between two binary covariates and a binary outcome.", explanation:"Slide 16: 'Model can't adequately display the relations... Better: Use model with interactions!'" },
-  { num:34, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 17", statement:"In the interaction model log(π/(1−π)) = β₀ + β_G·G + β_A·A + β_GA·G·A, exp(β_G) is the odds ratio for G when A = 0.", explanation:"Slide 17: setting A=0, the model reduces to β₀ + β_G·G, so exp(β_G) is the odds ratio for gender in the A=0 baseline group." },
-
-  { num:35, task:"Additional: Basic Concepts", answer:"FALSE", slide:"Basic Concepts – Slide 4", statement:"Regression analysis and correlation analysis answer the same fundamental question.", explanation:"Slide 4 poses this as a key distinction question: correlation is symmetric association; regression models the directional effect of x on y." },
-  { num:36, answer:"TRUE",  slide:"Basic Concepts – Slide 5",        statement:"One of the main objectives of regression is prediction or prognosis of the dependent variable.", explanation:"Slide 5 lists three objectives: (1) detection of interdependency, (2) quantification of the relation, (3) prediction/prognosis." },
-  { num:37, answer:"TRUE",  slide:"Basic Concepts – Slide 6",        statement:"In regression, the conditional distribution f(y|x) is investigated rather than the marginal distribution of y.", explanation:"Slide 6: objects of investigation are f_{y|x}, F_{y|x}, E(y|x), Q_T(y|x) — all conditional on x." },
-  { num:38, answer:"TRUE",  slide:"Basic Concepts – Slide 26",       statement:"The linear predictor η = x⊤β can include polynomial terms such as age², making it nonlinear in the original covariates but still linear in the parameters.", explanation:"Slide 26: 'include polynomial terms etc., e.g. age².' The predictor remains linear in β." },
-  { num:39, answer:"TRUE",  slide:"Basic Concepts – Slide 28",       statement:"The assumption Var(εᵢ) = σ² in the classical linear regression model implies that the error variance is the same for all observations (homoscedasticity).", explanation:"Slide 28 Assumption 2: Var(εᵢ) = σ², constant across all i — homoscedasticity." },
-  { num:40, answer:"FALSE", slide:"Basic Concepts – Slide 4",        statement:"Statistical testing and regression analysis are the same thing, as both deal with random variables.", explanation:"Slide 4 distinguishes these: testing evaluates hypotheses about parameters; regression models and quantifies the y~x relationship." },
-  { num:41, answer:"FALSE", slide:"Basic Concepts – Slides 7–10",    statement:"For a multi-categorical dependent variable y, the classical linear regression model is directly appropriate.", explanation:"Slides 7–10: different structures of y require different model types; the classical linear model is appropriate only for metrical y." },
-  { num:42, answer:"TRUE",  slide:"Basic Concepts – Slide 27",       statement:"In the Wilkinson-Rogers notation, the operator '*' between two variables denotes both their main effects and their interaction term.", explanation:"Slide 27: the '*' operator expands to main effect of x + main effect of x̃ + their interaction (x:x̃)." },
-
-  { num:43, task:"Additional: Encoding of Covariates", answer:"TRUE", slide:"Basic Concepts – Slide 21", statement:"In dummy coding with k = 3 categories and category 3 as reference, E(y | x₁ = 3) = β₀.", explanation:"Slide 21: when x₁ = 3, both dummies x₁₍₁₎ and x₁₍₂₎ are 0, so E(y|x₁=3) = β₀." },
-  { num:44, answer:"TRUE",  slide:"Basic Concepts – Slide 21",       statement:"In dummy coding with k = 3 and category 3 as reference, β₁₍₁₎ represents the expected difference between category 1 and category 3.", explanation:"Slide 21: E(y|x₁=1) = β₀ + β₁₍₁₎ and E(y|x₁=3) = β₀, so β₁₍₁₎ is the contrast vs. reference." },
-  { num:45, answer:"TRUE",  slide:"Basic Concepts – Slides 20–25",   statement:"Effect encoding and dummy coding always produce the same fitted values and model predictions.", explanation:"Slides 20–25: both are identifiability constraints on the same saturated model; fitted values and predictions are identical." },
-  { num:46, answer:"TRUE",  slide:"Basic Concepts – Slide 25",       statement:"Dummy coding is particularly useful when comparisons against a natural reference category are of primary interest.", explanation:"Slide 25: dummy coding is appropriate when there is a natural reference group to compare against." },
-  { num:47, answer:"FALSE", slide:"Basic Concepts – Slides 23–24",   statement:"In effect encoding, the coefficient for the last category (k) is directly estimated as a free parameter.", explanation:"Slides 23–24: the constraint Σ βⱼ₍ᵢ₎ = 0 means β_{k} = −Σᵢ₌₁^{k-1} βⱼ₍ᵢ₎; it is derived, not freely estimated." },
-
-  { num:48, task:"Additional: Models for Binary Outcome", answer:"TRUE", slide:"Binary Outcome – Slide 5", statement:"The Bayes-theorem motivation assumes x | y = i ~ N(µᵢ, Σ), and this assumption only makes sense for metric covariates.", explanation:"Slide 5 includes the annotation: 'this assumption only makes sense for metric covariates.'" },
-  { num:49, answer:"FALSE", slide:"Binary Outcome – Slide 5",        statement:"The Bayes-theorem-based derivation of binary regression is equally valid for categorical covariates.", explanation:"Slide 5 explicitly notes the normality assumption 'only makes sense for metric covariates.'" },
-  { num:50, answer:"TRUE",  slide:"Binary Outcome – Slides 11, 14",  statement:"In the latent variable framework, the error distribution F (CDF of −εᵢ) determines which binary regression model results.", explanation:"Slide 11 defines the latent model; Slide 14 shows different F choices yield logit, probit, or complementary log-log models." },
-  { num:51, answer:"FALSE", slide:"Binary Outcome – Slide 14",       statement:"The probit model is as commonly used as the logit model in practice.", explanation:"Slide 14: logistic is 'most frequently used'; probit (Gaussian CDF) is 'only rarely used.'" },
-  { num:52, answer:"TRUE",  slide:"Binary Outcome – Slides 11–14",   statement:"In the latent variable framework, P(yᵢ = 1 | xᵢ) = F(β₀ + xᵢ⊤β) where F is the CDF of −εᵢ.", explanation:"Slides 11–14 derive P(yᵢ=1|xᵢ) = F(β₀ + xᵢ⊤β) where F is the CDF of −εᵢ." },
-
-  { num:53, task:"Additional: Logistic Regression", answer:"TRUE", slide:"Logistic Regression – Slide 3", statement:"In logistic regression, the log-odds log(π(x)/(1−π(x))) is a linear function of the covariates.", explanation:"Slide 3 representation (3): log(π/(1−π)) = x⊤β = β₀ + β₁x₁ + … + βₚxₚ — exactly linear in the covariates." },
-  { num:54, answer:"TRUE",  slide:"Logistic Regression – Slide 4",   statement:"The probability π(x) in logistic regression always lies strictly between 0 and 1.", explanation:"Slide 4: F(η) is a proper CDF with range (0,1) — a key advantage over the linear probability model." },
-  { num:55, answer:"TRUE",  slide:"Logistic Regression – Slides 3, 4", statement:"The odds π(x)/(1−π(x)) in logistic regression can take any positive real value.", explanation:"Slides 3–4: odds = exp(x⊤β). Since the exponential maps ℝ → (0,∞), odds can be any positive real number." },
-  { num:56, answer:"TRUE",  slide:"Logistic Regression – Slides 7, 10", statement:"In logistic regression, if β₁ = 0, the predictor x₁ has no effect on either the probability or the odds.", explanation:"Slide 7: β₁ = 0 → no effect; Slide 10: exp(0) = 1 → odds ratio = 1, odds unchanged." },
-  { num:57, answer:"TRUE",  slide:"Logistic Regression – Slide 10",  statement:"An odds ratio exp(β₁) = 0.5 means the odds of the outcome are halved for each one-unit increase in x₁.", explanation:"Slide 10: increasing x₁ by 1 multiplies the odds by exp(β₁). If exp(β₁) = 0.5, odds are halved." },
-  { num:58, answer:"FALSE", slide:"Logistic Regression – Slide 4",   statement:"The logistic function F(η) = exp(η)/(1+exp(η)) satisfies F(η) → 1 as η → −∞.", explanation:"Slide 4: F(η) → 0 as η → −∞ and F(η) → 1 as η → +∞. As η → −∞, exp(η) → 0." },
-  { num:59, answer:"TRUE",  slide:"Logistic Regression – Slide 12",  statement:"Rescaling a covariate x₁ in logistic regression changes the coefficient β₁ but leaves predicted probabilities unchanged.", explanation:"Slide 12: the linear predictor x⊤β is invariant to rescaling; the coefficient adjusts to compensate." },
-
-  { num:60, task:"Additional: Logistic Regression with Categorical Covariates", answer:"TRUE", slide:"Logistic Regression Categorical – Slides 6, 7", statement:"In the logit model with a binary covariate x encoded as 0/1, exp(β₀) equals the odds for the group x = 0.", explanation:"Slide 6: when x=0, log-odds = β₀, so odds = exp(β₀) for the baseline group." },
-  { num:61, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 10", statement:"In the South African heart disease dataset with binary predictors tobacco, alcohol, and family history, the fitted coefficient β̂_tobacco = 0.140233 is positive, so higher tobacco consumption is associated with higher odds of heart disease.", explanation:"Slide 10: β̂_tobacco = 0.140233 > 0, p ≈ 2.19e-08 — highly significant and positive." },
-  { num:62, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 10", statement:"In the South African heart disease dataset, the fitted intercept β̂₀ = −1.687767 implies a baseline log-odds below zero, so the baseline probability of heart disease is below 50% when tobacco=0, alcohol=0, and famhistPresent=0.", explanation:"Slide 10: β̂₀ = −1.688. Baseline log-odds < 0 → probability ≈ 15.6% < 50%." },
-  { num:63, answer:"TRUE",  slide:"Logistic Regression Categorical – Slide 12", statement:"In a logit model with a multi-categorical covariate of k levels using dummy coding, k−1 dummy variables enter the model.", explanation:"Slide 12: the model has k−1 terms βL₍₁₎xL₍₁₎ + … + βL₍ₖ₋₁₎xL₍ₖ₋₁₎, with the k-th level as reference." },
-  { num:64, answer:"TRUE",  slide:"Logistic Regression Categorical – Slides 12, 13", statement:"In a logit model with categorical covariate L, the coefficient βL₍ᵢ₎ represents the difference in log-odds between education level i and the reference level.", explanation:"Slides 12–13: βL₍ᵢ₎ is the log-odds difference; exp(βL₍ᵢ₎) is the odds ratio between level i and the reference." },
-
-  // ═══════════════════════════════════════════════════════════════════
-  // GEMINI REVISION QUESTIONS – Batch 1 (from earlier Gemini session)
-  // ═══════════════════════════════════════════════════════════════════
-
-  // ── Gemini Batch 1: Task 1 – Basic Concepts & Components ────────────
-  { num:65, task:"Gemini Revision – Basic Concepts & Components",
-    answer:"TRUE",  slide:"Fundamental Concepts – Slide 4",
-    statement:"Unlike correlation, a regression analysis investigates the specific direction of a relationship and allows for multiple influence variables simultaneously.",
-    explanation:"Slide 4 explicitly states the difference lies in the 'direction of the investigated relationship' and the ability to include 'multiple influence variables' simultaneously." },
-  { num:66, answer:"FALSE", slide:"Fundamental Concepts – Slides 3, 6",
-    statement:"In a regression model, the response variable is also commonly referred to as the covariate, independent variable, or explanatory variable.",
-    explanation:"The response variable y is the outcome/target/dependent variable. It is x₁,…,xₚ that are the covariates, influence variables, or explanatory/independent variables." },
-  { num:67, answer:"TRUE",  slide:"Fundamental Concepts – Slide 6",
-    statement:"When examining a regression model of Y|X=x, we are typically interested in evaluating conditional entities such as the conditional density, conditional distribution function, or conditional expected value.",
-    explanation:"Slide 6 explicitly examines conditional structures: f_{y|x}, F_{y|x}, E(y|x), and Q_τ(y|x) — all conditional on x." },
-  { num:68, answer:"FALSE", slide:"Fundamental Concepts – Slide 28",
-    statement:"In a classical linear regression model, the random component assumes that the conditional variance of the response variable depends directly on the values of the covariates (Var(yᵢ|xᵢ) ≠ const).",
-    explanation:"The classical linear regression model assumes homoscedasticity: Var(εᵢ) = σ² is constant and does not depend on xᵢ. The conditional variance of yᵢ is always σ²." },
-
-  // ── Gemini Batch 1: Task 2 – Covariate Encoding ─────────────────────
-  { num:69, task:"Gemini Revision – Covariate Encoding",
-    answer:"FALSE", slide:"Fundamental Concepts – Slides 19, 20",
-    statement:"In dummy coding (0/1-encoding) for a multi-categorical variable with k categories, we can include all k indicators alongside an intercept β₀ without facing any structural estimation issues.",
-    explanation:"Including all k dummies alongside an intercept creates perfect multicollinearity (the dummies sum to 1, replicating the intercept). A reference category with βⱼ₍ₖ₎=0 is required for identifiability." },
-  { num:70, answer:"TRUE",  slide:"Fundamental Concepts – Slide 21",
-    statement:"Under dummy coding where category k is the reference (βⱼ₍ₖ₎=0), the intercept β₀ represents the expected value of the response for that reference category (E(y|x₁=k)=β₀).",
-    explanation:"When all dummy indicators are 0 (observation belongs to category k), the model reduces exactly to E(y|x)=β₀." },
-  { num:71, answer:"TRUE",  slide:"Fundamental Concepts – Slide 23",
-    statement:"In effect encoding for a multi-categorical variable with k categories, the identifiability restriction is ∑ᵢ₌₁ᵏ βⱼ₍ᵢ₎ = 0.",
-    explanation:"Slide 23 explicitly states the sum-to-zero restriction used in effect encoding to resolve identifiability." },
-  { num:72, answer:"FALSE", slide:"Fundamental Concepts – Slides 23, 24",
-    statement:"Under effect encoding, the intercept parameter β₀ represents the expected value of the response for the designated reference category k.",
-    explanation:"Under effect encoding, β₀ represents the overall (grand) mean across all categories. The reference category k gives E(y|x₁=k) = β₀ − β₁₍₁₎ − … − β₁₍ₖ₋₁₎." },
-
-  // ── Gemini Batch 1: Task 3 – Binary Outcomes & Latent Motivation ─────
-  { num:73, task:"Gemini Revision – Binary Outcomes & Latent Motivation",
-    answer:"FALSE", slide:"Binary Outcome – Slides 3, 4",
-    statement:"Applying a standard linear regression model (π(x)=β₀ + x⊤β) directly to a binary response y∈{0,1} is highly reasonable because probabilities naturally follow a linear line between −∞ and +∞.",
-    explanation:"A linear model can predict probabilities greater than 1 or less than 0, violating basic probability axioms. This is a primary reason against the linear probability approach." },
-  { num:74, answer:"FALSE", slide:"Binary Outcome – Slides 3, 4",
-    statement:"If a response variable y is binary (y~Bernoulli(π)), variance homogeneity naturally holds because Var(y)=π(1−π) is constant across all subjects regardless of their individual success probabilities π(xᵢ).",
-    explanation:"Var(y|xᵢ)=π(xᵢ)(1−π(xᵢ)) changes based on the covariates xᵢ, so the variance is inherently not constant — violating the homoscedasticity assumption." },
-  { num:75, answer:"TRUE",  slide:"Binary Outcome – Slides 5–8",
-    statement:"The logistic regression model can be derived using Bayes' Theorem by assuming x|y=i ~ N(µᵢ,Σ) — a multivariate normal with class-specific means and a shared covariance matrix.",
-    explanation:"Slides 5–8 demonstrate this derivation: applying Bayes' theorem with equal covariance normal densities yields a log-density ratio that is linear in x, giving the logistic function for P(y=1|x)." },
-  { num:76, answer:"FALSE", slide:"Binary Outcome – Slide 9",
-    statement:"When motivating the binary model via latent variables, we assume we observe a continuous metric variable ỹᵢ directly, but it is driven by a hidden binary switch yᵢ in the background.",
-    explanation:"The scenario is reversed: we observe the binary response yᵢ∈{0,1} directly, while the underlying continuous metric variable ỹᵢ is unobservable (latent) in the background." },
-  { num:77, answer:"TRUE",  slide:"Binary Outcome – Slide 12",
-    statement:"In the latent variable framework, the binary outcome is mapped such that yᵢ=1 if and only if the latent variable ỹᵢ meets or exceeds a threshold ϑ (yᵢ=1 ⟺ ỹᵢ≥ϑ).",
-    explanation:"Slide 12 explicitly defines this structural mapping between the observable binary variable and the latent continuous variable." },
-
-  // ── Gemini Batch 1: Task 4 – Logistic Regression Properties ─────────
-  { num:78, task:"Gemini Revision – Logistic Regression Properties",
-    answer:"TRUE",  slide:"Logistic Regression – Slide 4",
-    statement:"The CDF of the standard logistic distribution F(η)=exp(η)/(1+exp(η)) is strictly monotonically increasing and bounds predicted values strictly between 0 and 1.",
-    explanation:"Slide 4: limits are 0 (η→−∞) and 1 (η→+∞), and F'(η)>0, making it strictly monotonically increasing — a valid distribution function." },
-  { num:79, answer:"TRUE",  slide:"Logistic Regression – Slide 5",
-    statement:"The standard logistic function F(η) is point-symmetric around (0, 0.5), implying F(0)=0.5 and F(η)=1−F(−η).",
-    explanation:"Slide 5 highlights this core geometric property. When the linear predictor equals 0, the predicted probability is exactly 0.5." },
-  { num:80, answer:"TRUE",  slide:"Logistic Regression – Slide 3",
-    statement:"In a logistic regression model, the log-odds (logits) are determined linearly by the covariates: log(π(x)/(1−π(x))) = x⊤β.",
-    explanation:"Slide 3: while π(x) is non-linear, the log-odds representation (logit link) is perfectly linear in the parameters." },
-  { num:81, answer:"FALSE", slide:"Logistic Regression – Slide 7",
-    statement:"If a slope coefficient in a logistic regression model is negative (β₁<0), it means that as x₁ increases, the success probability π(x₁) increases as well.",
-    explanation:"Slide 7: if β₁<0, the probability π(x₁) decreases as x₁ increases. Only β₁>0 implies an increase in probability." },
-  { num:82, answer:"TRUE",  slide:"Logistic Regression – Slide 10",
-    statement:"If covariate x₁ increases by exactly 1 unit, the odds of the outcome change multiplicatively by a factor of exp(β₁).",
-    explanation:"Slide 10: shifting x₁ to x₁+1 yields an odds ratio of exp(β₁), acting as a direct multiplicative factor on the odds." },
-  { num:83, answer:"TRUE",  slide:"Logistic Regression – Slides 7, 10",
-    statement:"An estimated slope β̂₁=0 in a logit model indicates no relationship between that covariate and the binary response, corresponding to an odds ratio equal to 1 (exp(0)=1).",
-    explanation:"If β₁=0, the covariate has no linear effect on log-odds and no multiplicative effect on odds. The odds ratio exp(0)=1 represents equal chances." },
-
-  // ── Gemini Batch 1: Task 5 – Categorical Covariates, Interactions & Estimation ──
-  { num:84, task:"Gemini Revision – Categorical Covariates & Estimation",
-    answer:"TRUE",  slide:"Logistic Regression Categorical – Slides 6, 7",
-    statement:"If we have a binary covariate x_g (gender, g=1 for male, g=0 for female), exp(β̂₀) gives the empirical odds of the event occurring for the reference category (female).",
-    explanation:"When x_g=0, the model reduces to log(Odds)=β₀. Taking the exponential gives Odds_reference=exp(β₀)." },
-  { num:85, answer:"FALSE", slide:"Logistic Regression Categorical – Slides 7, 8",
-    statement:"If the estimated coefficient for a binary group indicator is positive (β̂₁>0), the corresponding odds ratio comparing the focus group to the reference will be less than 1 (OR<1).",
-    explanation:"A positive coefficient (β̂₁>0) guarantees exp(β̂₁)>1. The odds ratio is strictly greater than 1. Only β̂₁<0 gives OR<1." },
-  { num:86, answer:"FALSE", slide:"Logistic Regression Categorical – Slide 16",
-    statement:"When fitting a model with an interaction term between two variables, the effect of one covariate on the log-odds remains completely constant and independent of the level of the other covariate.",
-    explanation:"The fundamental purpose of interaction terms is to allow the effect of one variable to be modified by another (effect modification). The effect is no longer constant." },
-  { num:87, answer:"FALSE", slide:"Estimation – Slide 4",
-    statement:"Estimating a logit model using ordinary Least Squares (LS) minimization is completely optimal because it satisfies the requirement of constant variance (Var(y|xᵢ)=const).",
-    explanation:"For binary y, the true conditional variance π(xᵢ)(1−π(xᵢ)) is fundamentally non-constant, making LS structurally inappropriate for logistic regression." },
-  { num:88, answer:"TRUE",  slide:"Estimation – Slide 5",
-    statement:"Under the Maximum Likelihood framework for independent binary observations, the joint Likelihood is L(β)=∏ᵢ₌₁ⁿ π(xᵢ)^yᵢ (1−π(xᵢ))^(1−yᵢ).",
-    explanation:"Slide 5 explicitly defines this product of individual Bernoulli probabilities as the likelihood function L(β) for binary data." },
-  { num:89, answer:"TRUE",  slide:"Estimation – Slide 8",
-    statement:"The first derivative of the log-likelihood function with respect to the parameter vector β is called the Score function, s(β) = ∂l(β)/∂β.",
-    explanation:"Slide 8: the score vector s(β) arranges the partial derivatives ∂l(β)/∂βⱼ. Setting this to zero finds the maximum likelihood estimates." },
-
-  // ═══════════════════════════════════════════════════════════════════
-  // GEMINI REVISION QUESTIONS – Batch 2 (GLM Rationale & Exp. Families)
-  // ═══════════════════════════════════════════════════════════════════
-
-  // ── Task 1: Rationale of GLMs & Exponential Family ──────────────────
-  { num:90, task:"Gemini Revision – GLM Rationale & Exponential Family",
-    answer:"TRUE",  slide:"GLM Rationale – Slide 4",
-    statement:"In a GLM, the response function h(·) maps the linear predictor η directly to the expected value µ, such that µ=h(η).",
-    explanation:"The structural assumption of a GLM defines the response function h as the mapping from the linear predictor to the expected value: E(y|x)=µ=h(η). Its inverse g=h⁻¹ is the link function." },
-  { num:91, answer:"TRUE",  slide:"GLM Rationale – Slide 5",
-    statement:"In the standard GLM exponential family representation, the response variable yᵢ and the natural parameter θᵢ enter the exponential term strictly as a product yᵢ·θᵢ.",
-    explanation:"The density is f(yᵢ|θᵢ)=exp((yᵢθᵢ−b(θᵢ))/(ϕ/wᵢ)+c(yᵢ,ϕ,wᵢ)). The interaction between yᵢ and θᵢ is explicitly multiplicative/linear." },
-  { num:92, answer:"FALSE", slide:"GLM Rationale – Slide 14",
-    statement:"In the exponential family representation, the first derivative of the cumulant function b(θᵢ) with respect to θᵢ yields the conditional variance of the response variable.",
-    explanation:"The first derivative b'(θᵢ) yields the conditional mean: E(yᵢ|xᵢ)=µᵢ=b'(θᵢ). It is the second derivative b''(θᵢ) that tracks the variance structure." },
-  { num:93, answer:"TRUE",  slide:"GLM Rationale – Slides 7, 10",
-    statement:"The dispersion parameter ϕ is fixed to 1 for standard discrete distributions like the Bernoulli and Poisson distributions.",
-    explanation:"For Bernoulli and Poisson, variance is structurally locked to the mean, so there is no independent dispersion parameter (ϕ=1). Continuous distributions like the Normal require ϕ=σ² separately." },
-  { num:94, answer:"TRUE",  slide:"GLM Rationale – Slide 13",
-    statement:"A link function g(·) is called the 'canonical link' if it equates the linear predictor ηᵢ directly to the natural parameter θᵢ (θᵢ=ηᵢ).",
-    explanation:"By definition, if g(µᵢ)=θᵢ=ηᵢ=xᵢ⊤β, the natural parameter is modeled directly as a linear combination of covariates, making g(·) the canonical link." },
-
-  // ── Task 2: Properties of Specific GLM Distributions ────────────────
-  { num:95, task:"Gemini Revision – GLM Distributions",
-    answer:"FALSE", slide:"GLM Rationale – Slide 6",
-    statement:"When expressing the Normal distribution as an exponential family, the natural parameter θᵢ corresponds directly to the variance σ².",
-    explanation:"For a Normal distribution, the natural parameter θᵢ equals the mean µᵢ, while σ² maps to the dispersion parameter ϕ." },
-  { num:96, answer:"TRUE",  slide:"GLM Distributions – Slide 3",
-    statement:"The Exponential distribution is suitable for modeling waiting times or durations because it naturally restricts predicted values to y≥0.",
-    explanation:"The Exponential distribution is structurally bounded at zero, making it ideal for positive continuous metrics, unlike the Normal model which can generate negative predictions." },
-  { num:97, answer:"TRUE",  slide:"GLM Distributions – Slide 7",
-    statement:"For a Gamma-distributed response variable, the variance function V(µᵢ) scales quadratically with the mean: Var(yᵢ|xᵢ)=ϕ·µᵢ².",
-    explanation:"In a Gamma GLM, the second derivative of the cumulant function gives V(µ)=µ². Variance grows as the square of the mean, implying a constant coefficient of variation." },
-  { num:98, answer:"TRUE",  slide:"GLM Distributions – Slide 8",
-    statement:"The Poisson distribution is typically used to model count data, and its canonical link function is the natural logarithm: g(µᵢ)=log(µᵢ).",
-    explanation:"For Poisson, the natural parameter is θᵢ=log(λᵢ). Since µᵢ=λᵢ, setting θᵢ=ηᵢ yields the canonical log link: log(µᵢ)=xᵢ⊤β." },
-  { num:99, answer:"FALSE", slide:"GLM Distributions – Slide 9",
-    statement:"If count data exhibits severe overdispersion (sample variance ≫ sample mean), a standard Poisson GLM is structurally perfectly suited because it assumes Var(yᵢ)=µᵢ.",
-    explanation:"A standard Poisson model strictly enforces equidispersion (Var=mean). If overdispersion occurs, it underestimates standard errors. Alternatives like the Negative Binomial are needed." },
-
-  // ── Task 3: Grouped Data ─────────────────────────────────────────────
-  { num:100, task:"Gemini Revision – Grouped Data",
-    answer:"TRUE",  slide:"GLM Distributions – Slide 11",
-    statement:"When analyzing grouped binary data (yᵢⱼ*∈{0,1} summed over nᵢ trials), the response variable is redefined as the relative average frequency ȳᵢ = (1/nᵢ)∑yᵢⱼ*.",
-    explanation:"For grouped data, the model works with the empirical proportion ȳᵢ for each covariate group rather than individual 0s and 1s." },
-  { num:101, answer:"FALSE", slide:"GLM Distributions – Slides 12, 13",
-    statement:"Transforming individual binary observations into grouped data changes the underlying natural parameter θᵢ and the cumulant function b(θᵢ).",
-    explanation:"θᵢ and b(θᵢ) remain completely identical to the non-grouped version. Only the dispersion parameter scales inversely with group size: ϕᵢ=ϕ/nᵢ." },
-  { num:102, answer:"TRUE",  slide:"GLM Distributions – Slide 13",
-    statement:"For a grouped Bernoulli model with nᵢ observations in group i, the effective dispersion is ϕᵢ=1/nᵢ, meaning larger groups have smaller conditional variances for their sample proportions.",
-    explanation:"The grouped dispersion maps to ϕ/nᵢ and ϕ=1 for Bernoulli data, so Var(ȳᵢ)=πᵢ(1−πᵢ)/nᵢ — larger nᵢ means smaller variance." },
-
-  // ── Task 4: Chain Rule & GLM Score Equations ─────────────────────────
-  { num:103, task:"Gemini Revision – Chain Rule & Score Equations",
-    answer:"TRUE",  slide:"GLM Estimation – Slide 7",
-    statement:"Deriving the gradient of a GLM's log-likelihood requires applying the chain rule because the link function introduces a non-linear relationship between η and θ.",
-    explanation:"Slide 7: ∂l/∂β requires the chain expansion: (∂l/∂θᵢ)·(∂θᵢ/∂µᵢ)·(∂µᵢ/∂ηᵢ)·(∂ηᵢ/∂β)." },
-  { num:104, answer:"TRUE",  slide:"GLM Estimation – Slides 5, 15",
-    statement:"The variance of any exponential family response can be separated into two components: σᵢ²=ϕ·V(µᵢ), where V(µᵢ) is the mean-driven variance function.",
-    explanation:"This is foundational GLM theory. σᵢ²=ϕ·b''(θᵢ), and since µᵢ=b'(θᵢ), the second derivative can be re-expressed as a function of the mean V(µᵢ)." },
-  { num:105, answer:"TRUE",  slide:"GLM Estimation – Slide 15",
-    statement:"The general GLM score function is s(β)=∑ᵢ (∂h(ηᵢ)/∂η)·((yᵢ−µᵢ)/σᵢ²)·xᵢ.",
-    explanation:"This unified score vector holds for all GLMs before a specific link function is selected." },
-  { num:106, answer:"TRUE",  slide:"GLM Estimation – Slide 15",
-    statement:"In the matrix notation of the GLM score, s(β)=X⊤D(β)Σ(β)⁻¹(y−µ), the matrix D(β) is a diagonal matrix containing the derivatives of the response function.",
-    explanation:"D(β) is the diagonal weight matrix tracking ∂h(ηᵢ)/∂ηᵢ, linking the design matrix X to the residuals." },
-  { num:107, answer:"TRUE",  slide:"GLM Estimation – Slides 11, 12",
-    statement:"If a GLM uses a canonical link function, the derivative term ∂µᵢ/∂ηᵢ and the variance function V(µᵢ) mathematically cancel out during chain rule derivation.",
-    explanation:"Under canonical link θᵢ=ηᵢ, so ∂θᵢ/∂ηᵢ=1. Since ∂θᵢ/∂µᵢ=b''(θᵢ)=V(µᵢ) matches the denominator of the log-likelihood derivative, these terms cancel." },
-  { num:108, answer:"TRUE",  slide:"GLM Estimation – Slide 16",
-    statement:"For any GLM using a canonical link, the general score function simplifies to s(β)=(1/ϕ)X⊤(y−µ).",
-    explanation:"When the canonical link is active, all complex intermediate derivative matrices cancel, leaving the simplified form s(β)=(1/ϕ)∑ᵢ(yᵢ−µᵢ)xᵢ." },
-
-  // ── Task 5: Fisher Information & Asymptotics ──────────────────────────
-  { num:109, task:"Gemini Revision – Fisher Information & Asymptotics",
-    answer:"TRUE",  slide:"GLM Estimation – Slides 14, 16",
-    statement:"The Fisher Information matrix F(β) is defined as the expected value of the outer product of the score function: F(β)=E[s(β)s(β)⊤].",
-    explanation:"This defines the expected Fisher Information matrix, measuring how much information the observable data carries about the unknown parameter vector β." },
-  { num:110, answer:"FALSE", slide:"GLM Estimation – Slide 18",
-    statement:"The observed Hessian H_obs(β) and the expected Fisher Information matrix F(β) are always completely identical for any chosen link function.",
-    explanation:"They are only guaranteed identical (F(β)=−H_obs(β)) under a canonical link. For non-canonical links, the Hessian includes additional random terms involving (yᵢ−µᵢ) that vanish only under expectation." },
-  { num:111, answer:"TRUE",  slide:"GLM Estimation – Slide 14",
-    statement:"The variance-covariance matrix of the ML estimator β̂ is asymptotically equal to the inverse of the Fisher Information matrix: Var(β̂)≈F(β)⁻¹.",
-    explanation:"By ML theory, β̂ ~_a N(β, F(β)⁻¹). Inverting the information matrix yields asymptotic standard errors for our parameter estimates." },
-  { num:112, answer:"FALSE", slide:"GLM Estimation – Slide 15",
-    statement:"In a non-canonical GLM, the weight matrix W(β) in F(β)=X⊤W(β)X depends only on the individual variances σᵢ² and is unaffected by response function derivatives.",
-    explanation:"The diagonal weights are wᵢ=(∂h(ηᵢ)/∂ηᵢ)²·(1/σᵢ²). They depend on BOTH the variance function and the derivative of the response function." },
-
-  // ── Task 6: Newton-Raphson & IRLS ────────────────────────────────────
-  { num:113, task:"Gemini Revision – Newton-Raphson & IRLS",
-    answer:"TRUE",  slide:"GLM Estimation – Slide 19",
-    statement:"The Newton-Raphson algorithm updates parameter estimates iteratively as β^(k+1) = β^(k) − H(β^(k))⁻¹ s(β^(k)).",
-    explanation:"This is the standard Newton-Raphson optimization step: the current parameter vector is shifted by the inverse Hessian multiplied by the gradient (score) vector." },
-  { num:114, answer:"TRUE",  slide:"GLM Estimation – Slide 19",
-    statement:"The Fisher Scoring algorithm replaces the observed Hessian H_obs(β) with its expected value, the negative Fisher Information matrix −F(β).",
-    explanation:"Fisher Scoring substitutes the actual second-derivative matrix with its expected value. Under canonical links, Newton-Raphson and Fisher Scoring are exactly equivalent." },
-  { num:115, answer:"TRUE",  slide:"GLM Estimation – Slide 20",
-    statement:"Iteratively Reweighted Least Squares (IRLS) transforms the non-linear GLM estimation problem into a sequence of weighted linear regression steps using a transformed working response variable z.",
-    explanation:"IRLS computes an adjusted working response variable z^(k) at each step and runs a weighted linear regression on it to find the next parameter update." },
-
-  // ── Task 7: Structural Summaries ─────────────────────────────────────
-  { num:116, task:"Gemini Revision – Structural Summaries & GLM Framework",
-    answer:"TRUE",  slide:"GLM Rationale – Slide 13",
-    statement:"A linear regression model with normally distributed errors and an identity link function g(µ)=µ qualifies structurally as a Generalized Linear Model.",
-    explanation:"Classical linear regression is a special case of a GLM where the distribution is Normal (an exponential family) and the link is the canonical identity function." },
-  { num:117, answer:"FALSE", slide:"GLM Estimation – Slides 5, 6",
-    statement:"If the log-likelihood function of a GLM is strictly concave, the score equation s(β)=0 can have multiple distinct local maxima.",
-    explanation:"Strictly concave functions possess exactly one unique global maximum. There are no competing local peaks, ensuring optimization algorithms converge cleanly." },
-  { num:118, answer:"TRUE",  slide:"GLM Rationale – Slide 13",
-    statement:"The variance function V(µᵢ) for a Bernoulli distributed response is given by V(µᵢ)=µᵢ(1−µᵢ).",
-    explanation:"For a Bernoulli GLM, µᵢ=πᵢ. The variance function is V(µᵢ)=µᵢ(1−µᵢ), reflecting how variance is tied directly to the mean (success probability)." },
-  { num:119, answer:"TRUE",  slide:"GLM Estimation – Slide 3",
-    statement:"In a GLM framework, observations (y₁,…,yₙ) must be conditionally independent given their respective covariate vectors (x₁,…,xₙ).",
-    explanation:"The derivation of the joint likelihood as a product ∏ᵢf(yᵢ|xᵢ,β) relies on the foundational assumption of conditional independence across observations." },
-
-  // ═══════════════════════════════════════════════════════════════════
-  // GEMINI REVISION QUESTIONS – Batch 3 (Advanced Chapter 3 Questions)
-  // ═══════════════════════════════════════════════════════════════════
-
-  // ── Task 1: Math Structures of Exponential Families ──────────────────
-  { num:120, task:"Gemini Revision – Advanced Exponential Family Structures",
-    answer:"TRUE",  slide:"GLM Rationale – Slide 5",
-    statement:"In the GLM exponential family, the weight parameter wᵢ allows the dispersion or variance of an observation to vary based on known prior weights such as group sizes.",
-    explanation:"The density includes wᵢ alongside ϕ in the term (yᵢθᵢ−b(θᵢ))/(ϕ/wᵢ), allowing structured adjustments vital when moving from individual data to grouped averages." },
-  { num:121, answer:"TRUE",  slide:"GLM Rationale – Slide 5 (Exponential Family Theory)",
-    statement:"If a distribution belongs to the single-parameter exponential family, the support of the distribution must remain completely constant and independent of the natural parameter θ.",
-    explanation:"A foundational requirement for the exponential family is that the distribution's support cannot depend on the parameters. If support depends on the parameter (e.g. U(0,θ)), it cannot be written in standard GLM form." },
-  { num:122, answer:"FALSE", slide:"GLM Rationale – Slide 14",
-    statement:"The cumulant function b(θ) for any exponential family distribution is structurally guaranteed to be strictly concave.",
-    explanation:"Because b''(θ) represents Var(y)/(ϕ/wᵢ) > 0, it is strictly positive. A function with a strictly positive second derivative is strictly CONVEX, not concave." },
-  { num:123, answer:"TRUE",  slide:"GLM Rationale – Slide 11",
-    statement:"For the Bernoulli distribution expressed as an exponential family, the natural parameter is the log-odds: θᵢ = log(πᵢ/(1−πᵢ)).",
-    explanation:"Rearranging the Bernoulli PMF yields f(yᵢ)=exp(yᵢ·log(πᵢ/(1−πᵢ)) + log(1−πᵢ)). The multiplying factor for yᵢ defines the natural parameter θᵢ, matching the logit transformation." },
-
-  // ── Task 2: Advanced Continuous GLM Distributions ────────────────────
-  { num:124, task:"Gemini Revision – Advanced Continuous GLM Distributions",
-    answer:"TRUE",  slide:"GLM Distributions – Slide 4",
-    statement:"For a standard Exponential distribution GLM, the cumulant function is b(θ)=−log(−θ), and the natural parameter θ must strictly be negative (θ<0).",
-    explanation:"For the Exponential distribution, θ=−λ. Since the rate λ must be strictly positive (λ>0), this forces the canonical natural parameter θ to be strictly less than 0." },
-  { num:125, answer:"TRUE",  slide:"GLM Distributions – Slides 6, 7",
-    statement:"In a Gamma distribution GLM, the natural parameter maps to θᵢ=−1/µᵢ, meaning its canonical link function is the negative inverse function.",
-    explanation:"The algebraic rearrangement of the Gamma density gives θᵢ=−1/µᵢ. Under a canonical link ηᵢ=θᵢ, making g(µᵢ)=−1/µᵢ the canonical choice." },
-  { num:126, answer:"TRUE",  slide:"GLM Distributions – Slide 7",
-    statement:"Software implementations often substitute the Gamma's canonical link g(µᵢ)=−1/µᵢ with the log link g(µᵢ)=log(µᵢ) to avoid predicting non-sensical negative means.",
-    explanation:"The canonical link −1/µᵢ can map a positive linear predictor η>0 to a negative expected value µ<0. A log link guarantees µᵢ=exp(ηᵢ)>0, solving this practical issue." },
-
-  // ── Task 3: Advanced Discrete GLM Distributions ──────────────────────
-  { num:127, task:"Gemini Revision – Advanced Discrete GLM Distributions",
-    answer:"FALSE", slide:"GLM Distributions – Slide 8",
-    statement:"For a Poisson distribution with variance function V(µᵢ)=µᵢ, the standard deviation grows linearly with the mean.",
-    explanation:"If Var(yᵢ)=µᵢ, then the standard deviation is √µᵢ, which grows with the SQUARE ROOT of the mean, not linearly." },
-  { num:128, answer:"TRUE",  slide:"GLM Distributions – Slide 9",
-    statement:"The Negative Binomial distribution is introduced as an alternative to Poisson because it allows variance to exceed the mean: Var(yᵢ)=µᵢ+µᵢ²/k.",
-    explanation:"This formula accounts for overdispersion. As k→∞, the quadratic term collapses to 0 and the Negative Binomial converges back to a standard Poisson distribution." },
-
-  // ── Task 4: Grouped Data (Advanced) ──────────────────────────────────
-  { num:129, task:"Gemini Revision – Advanced Grouped Data",
-    answer:"TRUE",  slide:"GLM Distributions – Slide 11",
-    statement:"Moving from individual binary data (yᵢⱼ*∈{0,1}) to grouped proportions (ȳᵢ) shifts the statistical distribution from Bernoulli to a Binomial framework scaled by the number of trials nᵢ.",
-    explanation:"Summing independent Bernoulli observations creates a Binomial distribution B(nᵢ,πᵢ). Dividing by nᵢ gives the empirical proportion ȳᵢ, which follows a scaled Binomial." },
-  { num:130, answer:"FALSE", slide:"GLM Distributions – Slides 11, 12",
-    statement:"For grouped data, the normalizing term c(ȳᵢ,ϕᵢ) in the exponential family density remains entirely independent of the group size nᵢ.",
-    explanation:"The combination formula for a Binomial includes the binomial coefficient C(nᵢ, nᵢȳᵢ), which is highly dependent on nᵢ and forms part of the c(·) function." },
-  { num:131, answer:"TRUE",  slide:"GLM Distributions – Slide 13",
-    statement:"Grouping observations of varying sizes nᵢ introduces structural heteroscedasticity because Var(ȳᵢ)=ϕV(µᵢ)/nᵢ.",
-    explanation:"Because the effective dispersion is ϕᵢ=ϕ/nᵢ, groups with different nᵢ yield different conditional variances, introducing heteroscedasticity even if individual variances were constant." },
-
-  // ── Task 5: Detailed Chain Rule Components ───────────────────────────
-  { num:132, task:"Gemini Revision – Advanced Chain Rule Components",
-    answer:"TRUE",  slide:"GLM Estimation – Slide 6",
-    statement:"When maximizing the log-likelihood of a GLM, ∂lᵢ/∂θᵢ = (yᵢ − b'(θᵢ)) / (ϕ/wᵢ).",
-    explanation:"Differentiating the core exponential family term (yᵢθᵢ−b(θᵢ))/(ϕ/wᵢ) with respect to θᵢ isolates yᵢ and the derivative b'(θᵢ) over the scale factor." },
-  { num:133, answer:"TRUE",  slide:"GLM Estimation – Slide 7",
-    statement:"The chain rule component ∂µᵢ/∂θᵢ can be written as 1/V(µᵢ), the reciprocal of the variance function.",
-    explanation:"Since µᵢ=b'(θᵢ), by the inverse function theorem ∂µᵢ/∂θᵢ = 1/b''(θᵢ). Since b''(θᵢ)=V(µᵢ), this simplifies to 1/V(µᵢ)." },
-  { num:134, answer:"FALSE", slide:"GLM Estimation – Slide 7",
-    statement:"The term ∂µᵢ/∂ηᵢ is mathematically equivalent to the derivative of the link function g'(µᵢ).",
-    explanation:"Since µᵢ=h(ηᵢ), ∂µᵢ/∂ηᵢ = h'(ηᵢ), the derivative of the RESPONSE function h. Since g is the inverse of h, ∂µᵢ/∂ηᵢ = 1/g'(µᵢ) — the reciprocal of the link derivative." },
-
-  // ── Task 6: Canonical vs. Non-Canonical Score Equations ──────────────
-  { num:135, task:"Gemini Revision – Canonical vs. Non-Canonical Score",
-    answer:"TRUE",  slide:"GLM Estimation – Slide 15",
-    statement:"The universal GLM score equation balances the raw residual (yᵢ−µᵢ) against the conditional variance σᵢ², scaled by the response function derivative and the covariate values.",
-    explanation:"Shown in the expanded score formula: s(β)=∑ᵢ (∂h(ηᵢ)/∂η)·((yᵢ−µᵢ)/σᵢ²)·xᵢ — a system optimizing the distance between observed values and predictions." },
-  { num:136, answer:"TRUE",  slide:"GLM Estimation – Slides 11, 12",
-    statement:"When a canonical link is active, ∂h(ηᵢ)/∂ηᵢ becomes exactly equal to the conditional variance function V(µᵢ).",
-    explanation:"Under canonical link θᵢ=ηᵢ, so µᵢ=b'(ηᵢ). Differentiating with respect to ηᵢ yields b''(ηᵢ), which is the definition of the variance function V(µᵢ)." },
-  { num:137, answer:"FALSE", slide:"GLM Estimation – Slide 16",
-    statement:"In a canonical GLM, a dispersion parameter ϕ≠1 alters the final root location of the score equations, changing the optimal ML point estimates β̂.",
-    explanation:"For canonical links, s(β)=(1/ϕ)X⊤(y−µ). Since 1/ϕ is a constant scaling factor, it can be divided out entirely when finding where s(β)=0 — it does not shift the roots." },
-
-  // ── Task 7: Information Matrices & Curvature ─────────────────────────
-  { num:138, task:"Gemini Revision – Information Matrices & Curvature",
-    answer:"TRUE",  slide:"GLM Estimation – Slide 14",
-    statement:"The Fisher Information matrix can be viewed geometrically as a measure of the average curvature of the log-likelihood function across the parameter space.",
-    explanation:"The Hessian matrix defines curvature. Because F(β) is the expected negative Hessian, it represents the expected geometric curvature of the log-likelihood surface." },
-  { num:139, answer:"TRUE",  slide:"GLM Estimation – Slide 14",
-    statement:"If the log-likelihood curvature is extremely sharp at its peak, the Fisher Information matrix will have large values, translating into smaller standard errors and more precise parameter estimates.",
-    explanation:"Large values in F(β) signify high information. When inverted for Var(β̂)≈F(β)⁻¹, large values in the denominator yield smaller variances and tighter confidence intervals." },
-  { num:140, answer:"TRUE",  slide:"GLM Estimation – Slide 18",
-    statement:"Under a non-canonical link function, the observed Hessian matrix contains an extra component that depends on the raw residuals (yᵢ−µᵢ).",
-    explanation:"For non-canonical links, the second derivative picks up an extra term via the product rule containing (yᵢ−µᵢ). Taking the expected value clears this term since E(yᵢ−µᵢ)=0." },
-
-  // ── Task 8: Advanced Algorithmic Mechanics ───────────────────────────
-  { num:141, task:"Gemini Revision – Advanced Algorithmic Mechanics",
-    answer:"TRUE",  slide:"GLM Estimation – Slide 19",
-    statement:"The Newton-Raphson algorithm can struggle or fail to converge if starting values β^(0) are placed in a region where the observed Hessian matrix loses its negative definite status.",
-    explanation:"If initial values are far from the optimum, a non-canonical log-likelihood might not be locally strictly concave, causing the Hessian to lose negative definiteness and the algorithm to diverge." },
-  { num:142, answer:"TRUE",  slide:"GLM Estimation – Slide 19",
-    statement:"The Fisher Scoring algorithm is generally more stable than Newton-Raphson for non-canonical links because the expected Fisher Information matrix F(β) is guaranteed to remain positive definite.",
-    explanation:"Replacing the erratic observed Hessian with the expected Fisher Information provides a stable, positive-definite matrix at every step, reducing the risk of divergent steps." },
-  { num:143, answer:"TRUE",  slide:"GLM Estimation – Slide 20",
-    statement:"In IRLS, the adjusted working response variable is constructed as zᵢ^(k) = ηᵢ^(k) + g'(µᵢ^(k))(yᵢ − µᵢ^(k)).",
-    explanation:"This is the definition of the working target variable. It projects the raw residual (yᵢ−µᵢ) into the linear predictor space using the derivative of the link function." },
-
-  // ── Task 9: Core Model Comparisons ───────────────────────────────────
-  { num:144, task:"Gemini Revision – Core Model Comparisons & Overarching Concepts",
-    answer:"TRUE",  slide:"GLM Distributions – Slides 7, 8",
-    statement:"A log-linear model for Gamma and a log-linear model for Poisson share the same link function but assume different mean-variance relationships.",
-    explanation:"Both use the log link g(µ)=log(µ). However, Poisson assumes linear V(µ)=µ, whereas Gamma assumes quadratic V(µ)=µ²." },
-  { num:145, answer:"TRUE",  slide:"GLM Estimation – Slide 17",
-    statement:"The classical linear regression model is the only GLM where ML estimates can be computed in a single step using a closed-form matrix equation without iterative algorithms.",
-    explanation:"For a Normal distribution with identity link, the score equation simplifies to a linear system X⊤Xβ=X⊤y, solved directly via β̂=(X⊤X)⁻¹X⊤y." },
-  { num:146, answer:"FALSE", slide:"GLM Estimation – Slides 15, 16",
-    statement:"The dispersion parameter ϕ must be estimated accurately before solving the score equations to find the optimal ML estimates β̂ for any GLM.",
-    explanation:"ϕ appears as a constant denominator in s(β)=0. It can be factored out completely when finding β̂. Estimation of ϕ is only required afterward to calculate standard errors." },
-  { num:147, answer:"FALSE", slide:"GLM Estimation – Slide 3",
-    statement:"If an analyst changes the link function of a GLM from canonical to non-canonical, the joint log-likelihood loses its multiplicative independence property.",
-    explanation:"The independence property is determined by the data collection design (conditional independence given covariates), not by the choice of link function. The joint likelihood remains a product of individual densities." },
-  { num:148, answer:"TRUE",  slide:"GLM Estimation – Slide 15",
-    statement:"In the matrix representation F(β)=X⊤W(β)X, the matrix W(β) is a square diagonal matrix of size n×n.",
-    explanation:"W(β) maps the weight of each observation i along the diagonal, forming an n×n diagonal matrix that coordinates with the n×p design matrix X." },
-  { num:149, answer:"TRUE",  slide:"GLM Estimation – Slide 20",
-    statement:"A key advantage of the GLM framework is that the same underlying optimization algorithm (IRLS) can be used to estimate models for binary choices, continuous waiting times, and discrete counts.",
-    explanation:"By showing that these distributions all fit into the single-parameter exponential family, the score and Hessian structures generalize, allowing a single IRLS routine to solve all of them." },
+const quizzes = [
+  { id: '1supervised', label: 'Chapter 3 – Hypothesis Spaces & Capacity', file: '1supervised.html' },
+  { id: '2_classification', label: 'Chapter 2 – Classification Quiz', file: '2_classification.html' },
+  { id: '2univariate', label: 'Chapter 5 – Univariate & Linear Modelling (v2)', file: '2univariate.html' },
+  { id: 'asl_quiz', label: 'ASL Chapter 3 – Hypothesis Spaces & Capacity (light)', file: 'asl_quiz.html' },
+  { id: 'risk_minimization_quiz', label: 'Risk Minimization Quiz', file: 'risk_minimization_quiz.html' },
+  { id: 'risk_minimization_2', label: 'Risk Minimization Quiz (Alternate)', file: 'risk_minimization_2.html' },
+  { id: 'univariate', label: 'Chapter 5 – Univariate & Linear Modelling', file: 'univariate.html' }
 ];
 
-// State
-const state = {}; // num -> { chosen: 'TRUE'|'FALSE', revealed: bool }
-questions.forEach(q => { state[q.num] = { chosen: null, revealed: false }; });
+const select = document.getElementById('quizSelect');
+const list = document.getElementById('quizList');
+const frame = document.getElementById('quizFrame');
+const openBtn = document.getElementById('openBtn');
+const newTabBtn = document.getElementById('newTabBtn');
 
-let activeFilter = 'all';
-let shuffledOrder = null;
-
-const taskMap = {
-  'Additional: Logistic Regression': 'Binary Outcomes & Logistic Regression',
-  'Additional: Logistic Regression with Categorical Covariates': 'Covariate Encoding & Categorical Covariates',
-  'Gemini Revision – Basic Concepts & Components': 'Fundamental Concepts',
-  'Gemini Revision – Covariate Encoding': 'Covariate Encoding & Categorical Covariates',
-  'Gemini Revision – Binary Outcomes & Latent Motivation': 'Binary Outcomes & Logistic Regression',
-  'Gemini Revision – Logistic Regression Properties': 'Binary Outcomes & Logistic Regression',
-  'Gemini Revision – Categorical Covariates & Estimation': 'Covariate Encoding & Categorical Covariates',
-  'Gemini Revision – GLM Rationale & Exponential Family': 'GLM Rationale & Distributions',
-  'Gemini Revision – GLM Distributions': 'GLM Rationale & Distributions',
-  'Gemini Revision – Advanced Exponential Family Structures': 'GLM Rationale & Distributions',
-  'Gemini Revision – Advanced Continuous GLM Distributions': 'GLM Rationale & Distributions',
-  'Gemini Revision – Advanced Discrete GLM Distributions': 'GLM Rationale & Distributions',
-  'Gemini Revision – Grouped Data': 'Grouped Data',
-  'Gemini Revision – Advanced Grouped Data': 'Grouped Data',
-  'Gemini Revision – Chain Rule & Score Equations': 'Score & Estimation',
-  'Gemini Revision – Advanced Chain Rule Components': 'Score & Estimation',
-  'Gemini Revision – Canonical vs. Non-Canonical Score': 'Score & Estimation',
-  'Gemini Revision – Fisher Information & Asymptotics': 'Fisher Information & Inference',
-  'Gemini Revision – Information Matrices & Curvature': 'Fisher Information & Inference',
-  'Gemini Revision – Newton-Raphson & IRLS': 'Optimization & IRLS',
-  'Gemini Revision – Advanced Algorithmic Mechanics': 'Optimization & IRLS',
-  'Gemini Revision – Structural Summaries & GLM Framework': 'GLM Framework',
-  'Gemini Revision – Core Model Comparisons & Overarching Concepts': 'Model Comparison',
-};
-
-const majorTopics = [
-  'Fundamental Concepts',
-  'Covariate Encoding & Categorical Covariates',
-  'Binary Outcomes & Logistic Regression',
-  'GLM Rationale & Distributions',
-  'Grouped Data',
-  'Score & Estimation',
-  'Fisher Information & Inference',
-  'Optimization & IRLS',
-  'GLM Framework',
-  'Model Comparison',
-];
-
-function getTaskName(q) {
-  return q.task ? (taskMap[q.task] || q.task) : null;
-}
-
-function buildUI() {
-  const main = document.getElementById('main');
-  main.innerHTML = '';
-  const filterBar = document.getElementById('filterBar');
-  filterBar.innerHTML = '';
-
-  // collect major topics
-  const tasks = [];
-  questions.forEach(q => {
-    const major = getTaskName(q);
-    if (major && !tasks.includes(major)) tasks.push(major);
-  });
-
-  const orderedTasks = majorTopics.filter(t => tasks.includes(t));
-
-  // filter buttons
-  const allBtn = document.createElement('button');
-  allBtn.className = 'filter-btn' + (activeFilter === 'all' ? ' active' : '');
-  allBtn.textContent = 'All';
-  allBtn.onclick = () => { activeFilter = 'all'; buildUI(); };
-  filterBar.appendChild(allBtn);
-
-  const shuffleBtn = document.createElement('button');
-  shuffleBtn.className = 'filter-btn' + (activeFilter === 'shuffle' ? ' active' : '');
-  shuffleBtn.textContent = 'Shuffle';
-  shuffleBtn.onclick = () => {
-    activeFilter = 'shuffle';
-    shuffledOrder = [...questions].sort(() => Math.random() - 0.5);
-    buildUI();
-  };
-  filterBar.appendChild(shuffleBtn);
-
-  orderedTasks.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'filter-btn' + (activeFilter === t ? ' active' : '');
-    btn.textContent = t;
-    btn.onclick = () => { activeFilter = t; buildUI(); };
-    filterBar.appendChild(btn);
-  });
-
-  // render questions
-  let lastTask = null;
-  const displayList = activeFilter === 'shuffle' ? shuffledOrder : questions;
-  displayList.forEach((q, idx) => {
-    const currentTask = getTaskName(q);
-
-    if (activeFilter !== 'shuffle') {
-      // determine current task for this question
-      let thisTask = currentTask || lastTask;
-      const prevTask = lastTask;
-      if (currentTask) lastTask = currentTask;
-
-      if (activeFilter !== 'all' && thisTask !== activeFilter) return;
-
-      // section heading
-      if (currentTask && (!prevTask || currentTask !== prevTask)) {
-        const h = document.createElement('div');
-        h.className = 'section-heading';
-        h.textContent = currentTask;
-        main.appendChild(h);
-      }
-    }
-
-    const s = state[q.num];
-    let cardClass = 'card';
-    if (s.chosen) {
-      cardClass += s.chosen === q.answer ? ' correct-answer' : ' wrong-answer';
-    }
-    if (s.revealed) {
-      cardClass += ' revealed';
-    }
-
+function renderQuizList() {
+  quizzes.forEach((quiz, index) => {
     const card = document.createElement('div');
-    card.className = cardClass;
-    card.id = `card-${q.num}`;
-
-    // top: number + statement
+    card.className = 'quiz-card';
     card.innerHTML = `
-      <div class="card-top">
-        <span class="q-num">Q${activeFilter === 'shuffle' ? idx + 1 : q.num}</span>
-        <span class="statement">${q.statement}</span>
+      <div>
+        <strong>${quiz.label}</strong>
+        <span>${quiz.file}</span>
       </div>
-      <div class="answer-row">
-        <button class="ans-btn ${s.chosen === 'TRUE' ? 'selected-true' : ''}" onclick="choose(${q.num},'TRUE')">TRUE</button>
-        <button class="ans-btn ${s.chosen === 'FALSE' ? 'selected-false' : ''}" onclick="choose(${q.num},'FALSE')">FALSE</button>
-      </div>
-      <button class="reveal-btn" id="revbtn-${q.num}" onclick="reveal(${q.num})">${s.revealed ? '▲ Hide Answer' : '▼ Reveal Answer'}</button>
-      <div class="answer-panel ${s.revealed ? 'visible' : ''}" id="panel-${q.num}">
-        <span class="answer-badge ${q.answer.toLowerCase()}">${q.answer}</span>
-        ${s.chosen ? `<span class="result-indicator ${s.chosen === q.answer ? 'correct' : 'wrong'}">${s.chosen === q.answer ? '✓ Correct' : '✗ Wrong'}</span>` : ''}
-        <div class="slide-ref">${q.slide}</div>
-        <div class="explanation">${q.explanation}</div>
-      </div>
-    `;
-    main.appendChild(card);
+      <div>
+        <button class="btn" type="button" data-file="${quiz.file}">View</button>
+      </div>`;
+    card.querySelector('button').addEventListener('click', () => selectQuiz(quiz.file));
+    list.appendChild(card);
+
+    const option = document.createElement('option');
+    option.value = quiz.file;
+    option.textContent = quiz.label;
+    if (index === 0) option.selected = true;
+    select.appendChild(option);
   });
-
-  updateStats();
 }
 
-function choose(num, val) {
-  state[num].chosen = val;
-  state[num].revealed = true;
-  buildUI();
+function selectQuiz(file) {
+  frame.src = file;
+  select.value = file;
 }
 
-function reveal(num) {
-  state[num].revealed = !state[num].revealed;
-  buildUI();
-  // scroll to card
-  const el = document.getElementById(`card-${num}`);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function revealAll() {
-  questions.forEach(q => { state[q.num].revealed = true; });
-  buildUI();
-}
-
-function resetAll() {
-  if (!confirm('Reset all answers and reveals?')) return;
-  questions.forEach(q => { state[q.num] = { chosen: null, revealed: false }; });
-  buildUI();
-}
-
-function updateStats() {
-  let answered = 0, correct = 0, wrong = 0;
-  questions.forEach(q => {
-    const s = state[q.num];
-    if (s.chosen) {
-      answered++;
-      if (s.chosen === q.answer) correct++;
-      else wrong++;
-    }
-  });
-  const score = correct - wrong;
-  document.getElementById('s-answered').textContent = answered;
-  document.getElementById('s-total').textContent = questions.length;
-  document.getElementById('s-correct').textContent = correct;
-  document.getElementById('s-wrong').textContent = wrong;
-  document.getElementById('s-score').textContent = score;
-  const pct = (answered / questions.length) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-}
-
-function showResults() {
-  let answered = 0, correct = 0, wrong = 0, unanswered = 0;
-  questions.forEach(q => {
-    const s = state[q.num];
-    if (s.chosen) { answered++; if (s.chosen === q.answer) correct++; else wrong++; }
-    else unanswered++;
-  });
-  const score = correct - wrong;
-  const maxScore = 30;
-  document.getElementById('modalScore').textContent = score;
-  document.getElementById('modalDetail').textContent = `${correct} correct · ${wrong} wrong · ${unanswered} unanswered (out of ${questions.length} practice questions)`;
-  const badge = document.getElementById('modalBadge');
-  badge.textContent = score >= 15 ? '✓ PASS (≥15/30)' : '✗ NOT YET (< 15/30)';
-  badge.className = 'pass-badge ' + (score >= 15 ? 'pass' : 'fail');
-  document.getElementById('modalUnanswered').textContent = unanswered > 0 ? `Note: ${unanswered} question(s) unanswered score 0 pts each.` : '';
-  document.getElementById('modal').classList.add('open');
-}
-
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('open');
+openBtn.addEventListener('click', () => {
+  selectQuiz(select.value);
 });
 
-buildUI();
+newTabBtn.addEventListener('click', () => {
+  window.open(select.value, '_blank');
+});
+
+renderQuizList();
 </script>
 </body>
 </html>
